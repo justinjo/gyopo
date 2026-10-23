@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { adapters, validateCustomRange } from './drills'
 import { APP_NAME, APP_VERSION, DRILLS, initialState } from './config'
@@ -46,13 +46,12 @@ export function App(){
   async function applyUpdate(){await repository.save(stateRef.current);await updateServiceWorker(true)}
 
   const q=state.session.question,score=state.progress.byDrill[state.session.drill],total=score.correct+score.incorrect
-  const streak=useMemo(()=>calculateStreak(state.progress.daily.map(d=>d.date)),[state.progress.daily])
   if(!ready||!q)return <div className="loading"><span>교</span><p>Preparing your practice…</p></div>
   return <div className="app-shell" onKeyDown={keyDown}>
     <header className="topbar"><h1>{APP_NAME}<span>.</span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <main>
-      <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div><div><b>{streak}</b><span>day streak</span></div></section>
+      <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
         <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.gloss||q.meta?.format||''}</span></div>
         <div className="prompt-area">{q.meta?.swatch&&<div className="swatch" style={{background:String(q.meta.hex)}} aria-label="Color swatch"/>}<div className={q.drill==='counters'?'sentence-prompt':'main-prompt'}>{q.prompt}</div></div>
@@ -83,4 +82,3 @@ function SettingsPanel({settings,close,change,installed}:{settings:Settings;clos
 }
 function SettingGroup({label,children}:{label:string;children:React.ReactNode}){return <div className="setting-group"><label>{label}</label>{children}</div>}
 function Segment({value,options,onChange}:{value:string;options:[string,string][];onChange:(v:string)=>void}){return <div className="segment">{options.map(([v,label])=><button key={v} className={v===value?'selected':''} onClick={()=>onChange(v)}>{label}</button>)}</div>}
-function calculateStreak(dates:string[]):number{const set=new Set(dates);let date=new Date(),streak=0;if(!set.has(date.toLocaleDateString('en-CA'))){date.setDate(date.getDate()-1)}while(set.has(date.toLocaleDateString('en-CA'))){streak++;date.setDate(date.getDate()-1)}return streak}
