@@ -49,7 +49,7 @@ export function App(){
   const streak=useMemo(()=>calculateStreak(state.progress.daily.map(d=>d.date)),[state.progress.daily])
   if(!ready||!q)return <div className="loading"><span>교</span><p>Preparing your practice…</p></div>
   return <div className="app-shell" onKeyDown={keyDown}>
-    <header className="topbar"><div><p className="eyebrow">Korean, a little every day</p><h1>{APP_NAME}<span>.</span></h1></div><div className="header-actions"><span className={`status ${online?'online':'offline'}`}><i/>{online?'Online':'Offline ready'}</span><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></div></header>
+    <header className="topbar"><h1>{APP_NAME}<span>.</span></h1><div className="header-actions"><span className={`status ${online?'online':'offline'}`}><i/>{online?'Online':'Offline ready'}</span><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></div></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <main>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div><div><b>{streak}</b><span>day streak</span></div></section>

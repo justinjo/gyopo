@@ -1,5 +1,5 @@
 import type { PersistedState } from './types'
-export const APP_NAME = 'Gyopo'
+export const APP_NAME = 'gyopo'
 export const APP_VERSION = '1.0.0'
 export const DRILLS = ['numbers', 'counters', 'colors', 'time'] as const
 export const initialState: PersistedState = {
