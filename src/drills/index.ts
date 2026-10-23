@@ -3,6 +3,7 @@ import { normalizeAnswer, normalizeTime, sample, shuffle, uniqueChoices } from '
 import { parseIntegerAnswer, toNativeKorean, toSinoKorean } from '../lib/koreanNumbers'
 import { colors } from '../content/colors'
 import { counters } from '../content/counters'
+import { days } from '../content/days'
 import { digitalTime, koreanTime, timeAliases } from '../lib/time'
 
 const check: DrillAdapter['checkAnswer'] = (q, input) => {
@@ -74,9 +75,18 @@ const timeAdapter: DrillAdapter = {
     return {id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Korean reading`,canonical,accepted,choices:uniqueChoices(canonical,alternatives),progressKey:format,meta:{digital:reverse,format}}
   }
 }
+const dayAdapter: DrillAdapter = {
+  id:'days',label:'Days',checkAnswer:check,
+  createQuestion({settings}:DrillContext):Question {
+    const entry=sample(days),reverse=actualDirection(settings)==='reverse'
+    const canonical=reverse?entry.english:entry.korean
+    const candidates=days.filter(day=>day.id!==entry.id).map(day=>reverse?day.english:day.korean)
+    return {id:`day-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'days',prompt:reverse?entry.korean:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Korean',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:entry.id}
+  }
+}
 function directionLabel(reverse:boolean){return reverse?'digital':'korean'}
 
-export const adapters:Record<string,DrillAdapter>={numbers,counters:counterAdapter,colors:colorAdapter,time:timeAdapter}
+export const adapters:Record<string,DrillAdapter>={numbers,counters:counterAdapter,colors:colorAdapter,time:timeAdapter,days:dayAdapter}
 export function validateCustomRange(min:number,max:number,system:Settings['numberSystem']):string|null {
   if(!Number.isInteger(min)||!Number.isInteger(max))return 'Use whole numbers.'
   if(min>max)return 'Minimum must be no greater than maximum.'

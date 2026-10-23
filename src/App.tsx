@@ -6,8 +6,8 @@ import { flashcardLessons } from './content/flashcards'
 import { repository } from './storage/repository'
 import type { ActiveSession, DrillId, PersistedState, Settings } from './types'
 
-const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time'}
-const icons:Record<DrillId,string>={numbers:'일',counters:'개',colors:'●',time:'시'}
+const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time',days:'Days'}
+const icons:Record<DrillId,string>={numbers:'일',counters:'개',colors:'●',time:'시',days:'월'}
 const today=()=>new Date().toLocaleDateString('en-CA')
 
 export function App(){

@@ -1,4 +1,4 @@
-export type DrillId = 'numbers' | 'counters' | 'colors' | 'time'
+export type DrillId = 'numbers' | 'counters' | 'colors' | 'time' | 'days'
 export type AnswerMode = 'typing' | 'choice'
 export type Direction = 'forward' | 'reverse' | 'mixed'
 export type LevelFilter = 'all' | 'beginner' | 'intermediate'
