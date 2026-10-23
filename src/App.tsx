@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { adapters, validateCustomRange } from './drills'
 import { APP_NAME, APP_VERSION, DRILLS, initialState } from './config'
+import { flashcardLessons } from './content/flashcards'
 import { repository } from './storage/repository'
 import type { ActiveSession, DrillId, PersistedState, Settings } from './types'
 
@@ -12,6 +13,7 @@ const today=()=>new Date().toLocaleDateString('en-CA')
 export function App(){
   const [state,setState]=useState<PersistedState>(initialState)
   const [ready,setReady]=useState(false),[settingsOpen,setSettingsOpen]=useState(false)
+  const [view,setView]=useState<DrillId|'flashcards'>('numbers')
   const [installed,setInstalled]=useState(matchMedia('(display-mode: standalone)').matches)
   const inputRef=useRef<HTMLInputElement>(null)
   const stateRef=useRef(state); stateRef.current=state
@@ -29,7 +31,7 @@ export function App(){
   },[])
   useEffect(()=>{if(ready&&!state.session.question)setState(s=>({...s,session:makeQuestion(s)}))},[ready,state.session.question,makeQuestion])
 
-  function switchDrill(drill:DrillId){setState(s=>({...s,session:makeQuestion({...s,session:{...s.session,drill}},drill)}))}
+  function switchDrill(drill:DrillId){setView(drill);setState(s=>({...s,session:makeQuestion({...s,session:{...s.session,drill}},drill)}))}
   function submit(value=state.session.input){
     const q=state.session.question;if(!q||state.session.feedback||!value.trim())return
     const result=adapters[q.drill].checkAnswer(q,value)
@@ -49,7 +51,7 @@ export function App(){
   return <div className="app-shell" onKeyDown={keyDown}>
     <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
-    <main>
+    {view==='flashcards'?<Flashcards/>:<main>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
         <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.gloss||q.meta?.format||''}</span></div>
@@ -62,10 +64,26 @@ export function App(){
           <div className="question-actions"><button className="skip" onClick={next}>Skip</button>{state.settings.answerMode==='typing'&&<button className="primary check" onClick={()=>submit()} disabled={!state.session.input.trim()}>Check <kbd>Enter</kbd></button>}</div>}
         </div>
       </section>
-    </main>
-    <nav className="tabs" aria-label="Drills">{DRILLS.map(id=><button key={id} className={state.session.drill===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}</nav>
+    </main>}
+    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>가</span>Cards</button></nav>
     {settingsOpen&&<SettingsPanel settings={state.settings} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>} 
   </div>
+}
+
+function Flashcards(){
+  const [lessonId,setLessonId]=useState(flashcardLessons[0].id),[index,setIndex]=useState(0),[flipped,setFlipped]=useState(false),[order,setOrder]=useState(()=>flashcardLessons[0].cards.map((_,i)=>i))
+  const lesson=flashcardLessons.find(item=>item.id===lessonId)!,card=lesson.cards[order[index]]
+  function chooseLesson(id:string){const next=flashcardLessons.find(item=>item.id===id)!;setLessonId(id);setOrder(next.cards.map((_,i)=>i));setIndex(0);setFlipped(false)}
+  function move(offset:number){setIndex(current=>(current+offset+order.length)%order.length);setFlipped(false)}
+  function shuffleCards(){setOrder(current=>{const next=[...current];for(let i=next.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[next[i],next[j]]=[next[j],next[i]]}return next});setIndex(0);setFlipped(false)}
+  return <main className="flashcards-view">
+    <header className="flashcards-header"><div><p className="eyebrow">Vocabulary deck</p><h2>Flashcards</h2></div><button className="shuffle-button" onClick={shuffleCards}>Shuffle</button></header>
+    <div className="lesson-tabs" aria-label="Flashcard lessons">{flashcardLessons.map(item=><button key={item.id} className={item.id===lessonId?'selected':''} onClick={()=>chooseLesson(item.id)}><b>Lesson {item.number}</b><span>{item.title}</span></button>)}</div>
+    <section className="flashcard-study"><div className="card-meta"><span>Lesson {lesson.number} · {lesson.koreanTitle}</span><span>{index+1} of {order.length}</span></div>
+      <button className={`flashcard ${flipped?'flipped':''}`} onClick={()=>setFlipped(value=>!value)} aria-label={flipped?`${card.english}. Show Korean`:`${card.korean}. Reveal English`}><span className="card-side-label">{flipped?'English':'한국어'}</span><strong>{flipped?card.english:card.korean}</strong><small>{flipped?'Tap to show Korean':'Tap to reveal English'}</small></button>
+      <div className="card-navigation"><button onClick={()=>move(-1)} aria-label="Previous card">← Previous</button><button className="primary" onClick={()=>flipped?move(1):setFlipped(true)}>{flipped?'Next →':'Reveal'}</button></div>
+    </section>
+  </main>
 }
 
 function SettingsPanel({settings,close,change,installed}:{settings:Settings;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
