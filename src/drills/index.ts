@@ -13,8 +13,11 @@ const check: DrillAdapter['checkAnswer'] = (q, input) => {
 const actualDirection = (settings: Settings) => settings.direction === 'mixed' ? sample(['forward','reverse'] as const) : settings.direction
 
 function numberRange(s: Settings, native: boolean): [number, number] {
-  if (native) return [Math.max(1, s.numberPreset === 'custom' ? s.customMin : 1), Math.min(99, s.numberPreset === 'custom' ? s.customMax : 99)]
-  if (s.numberPreset === 'custom') return [Math.max(0,s.customMin),Math.min(999_999_999,s.customMax)]
+  if (native) {
+    const min=Math.max(1, s.numberPreset === 'custom' ? s.customMin : 1),max=Math.min(99, s.numberPreset === 'custom' ? s.customMax : 99)
+    return min<=max?[min,max]:[1,99]
+  }
+  if (s.numberPreset === 'custom') { const min=Math.max(0,s.customMin),max=Math.min(999_999_999,s.customMax);return min<=max?[min,max]:[0,9999] }
   return s.numberPreset === 'small' ? [0,99] : s.numberPreset === 'large' ? [10_000,999_999_999] : [0,9999]
 }
 function nearbyNumbers(n:number,min:number,max:number): number[] {

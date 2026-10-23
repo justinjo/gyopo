@@ -1,6 +1,6 @@
 export function normalizeAnswer(value: string): string {
   return value.normalize('NFC').trim().toLocaleLowerCase('en-US')
-    .replace(/[.,!?;:'"“”‘’()\[\]{}]/g, '')
+    .replace(/[.,!?;'"“”‘’()\[\]{}]/g, '')
     .replace(/\s+/g, '')
     .replace(/^0+(?=\d)/, '')
 }

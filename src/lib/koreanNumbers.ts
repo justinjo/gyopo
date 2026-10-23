@@ -23,7 +23,8 @@ export function toSinoKorean(value: number): string {
     const divisor = 10 ** (group * 4)
     const part = Math.floor(value / divisor) % 10000
     if (!part) continue
-    out += sinoGroup(part) + bigUnits[group]
+    // 만 commonly drops a leading 일 (10,000 = 만); 억 retains it.
+    out += (group === 1 && part === 1 ? '' : sinoGroup(part)) + bigUnits[group]
   }
   return out
 }
