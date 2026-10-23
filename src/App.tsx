@@ -48,7 +48,7 @@ export function App(){
   const q=state.session.question,score=state.progress.byDrill[state.session.drill],total=score.correct+score.incorrect
   if(!ready||!q)return <div className="loading"><span>교</span><p>Preparing your practice…</p></div>
   return <div className="app-shell" onKeyDown={keyDown}>
-    <header className="topbar"><h1>{APP_NAME}<span>.</span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
+    <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-50 -50 100 100"><g transform="scale(-1 1)"><path fill="#cd2e3a" d="M-50 0a50 50 0 0 1 100 0 25 25 0 0 1-50 0 25 25 0 0 0-50 0Z"/><path fill="#0047a0" d="M50 0a50 50 0 0 1-100 0 25 25 0 0 1 50 0 25 25 0 0 0 50 0Z"/></g></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <main>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div></section>
