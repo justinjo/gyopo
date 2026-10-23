@@ -11,6 +11,10 @@ npm test
 npm run build
 ```
 
+## GitHub Pages
+
+Pushes to `main` are tested, built with the `/gyopo/` base path, and deployed by GitHub Actions. The installed PWA is available at <https://justinjo.github.io/gyopo/>.
+
 The production service worker uses an explicit waiting lifecycle. A new version never reloads an open drill automatically; the learner chooses **Update** after the app checkpoints the current session.
 
 Progress is kept in versioned IndexedDB, separate from application caches. It survives normal updates, offline launches, and connection changes. Because it is device-only, uninstalling the Home Screen app, manually clearing site data, or exceptional operating-system storage eviction can still remove it.
