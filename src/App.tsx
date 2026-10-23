@@ -38,7 +38,6 @@ export function App(){
       if(!result.correct&&q.drill==='counters')p.counterMistakes[q.progressKey]=(p.counterMistakes[q.progressKey]??0)+1
       return {...s,progress:p,session:{...s.session,input:value,feedback:result}}
     })
-    if(state.progress.lifetime.correct+state.progress.lifetime.incorrect===0)repository.persist()
   }
   function next(){setState(s=>({...s,session:makeQuestion(s)}));requestAnimationFrame(()=>inputRef.current?.focus())}
   function keyDown(e:React.KeyboardEvent){if(e.key==='Enter'){e.preventDefault();state.session.feedback?next():submit()}}

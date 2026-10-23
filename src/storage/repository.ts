@@ -18,6 +18,5 @@ export function migrate(raw: unknown): PersistedState {
 function openDb():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const request=indexedDB.open(DB,DB_VERSION);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE)};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
 export const repository={
   async load():Promise<PersistedState>{try{const db=await openDb();const raw=await new Promise<unknown>((resolve,reject)=>{const tx=db.transaction(STORE);const req=tx.objectStore(STORE).get(KEY);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});db.close();return migrate(raw)}catch{return cloneInitial()}},
-  async save(state:PersistedState):Promise<void>{const db=await openDb();await new Promise<void>((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(state,KEY);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)});db.close()},
-  async persist():Promise<boolean>{try{return await navigator.storage?.persist?.()??false}catch{return false}}
+  async save(state:PersistedState):Promise<void>{const db=await openDb();await new Promise<void>((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(state,KEY);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)});db.close()}
 }
