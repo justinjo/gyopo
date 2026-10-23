@@ -1,4 +1,43 @@
+# Dependencies and generated output
 node_modules/
 dist/
+coverage/
 *.tsbuildinfo
+
+# Environment variables and local overrides
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# Credentials and deployment secrets
+.npmrc
+.pypirc
+credentials*.json
+service-account*.json
+secrets*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+*.mobileprovision
+
+# Local tooling, logs, and operating-system state
+.vscode/
+.idea/
+.fleet/
+.history/
+.cache/
+.vite/
+.vercel/
+.netlify/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 .DS_Store
+Thumbs.db
