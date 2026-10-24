@@ -61,10 +61,10 @@ const counterAdapter: DrillAdapter = {
     context.counterBag=context.counterBag.filter(id=>eligibleIds.has(id))
     if(!context.counterBag.length) context.counterBag=shuffle(eligible.map(c=>c.id))
     const id=context.counterBag.shift()!, entry=eligible.find(c=>c.id===id)!, example=sample(entry.examples)
-    const peopleAlternative=id==='people'?{value:'분',label:'Note: 명 is the neutral people counter; 분 is the honorific people counter.'}:id==='people-honor'?{value:'명',label:'Note: 명 is the neutral people counter; 분 is the honorific people counter.'}:null
-    const accepted=[entry.counter,...(example.aliases??[])].map(value=>({value,label:undefined as string|undefined}));if(peopleAlternative)accepted.push(peopleAlternative)
-    const peopleCounters=peopleAlternative?new Set(['명','분']):null
-    const candidates=eligible.filter(c=>c.id!==id&&!peopleCounters?.has(c.counter)).map(c=>c.counter)
+    const alternative=id==='people'?{value:'분',label:'Note: 명 is the neutral people counter; 분 is the honorific people counter.'}:id==='people-honor'?{value:'명',label:'Note: 명 is the neutral people counter; 분 is the honorific people counter.'}:id==='mouthfuls'?{value:'병',label:'Note: 모금 counts sips; 병 counts bottles.'}:null
+    const accepted=[entry.counter,...(example.aliases??[])].map(value=>({value,label:undefined as string|undefined}));if(alternative)accepted.push(alternative)
+    const equivalentCounters=alternative?new Set([entry.counter,alternative.value]):null
+    const candidates=eligible.filter(c=>c.id!==id&&!equivalentCounters?.has(c.counter)).map(c=>c.counter)
     return {id:`counter-${id}-${Date.now()}`,drill:'counters',prompt:example.sentence,promptLabel:`Fill in the counter · ${entry.level}`,canonical:entry.counter,accepted,choices:uniqueChoices(entry.counter,shuffle(candidates)),translation:example.translation,progressKey:id,meta:{gloss:entry.gloss}}
   }
 }
