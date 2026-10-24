@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
     manifest: {
       name: 'Gyopo Korean Practice', short_name: 'Gyopo', description: 'Quiet, offline Korean drills.',
       start_url: base, scope: base, display: 'standalone', orientation: 'portrait-primary',
-      background_color: '#f5f0e7', theme_color: '#f5f0e7',
+      background_color: '#f8f4ec', theme_color: '#f8f4ec',
       icons: [
         { src: `${base}pwa-192x192.png`, sizes: '192x192', type: 'image/png' },
         { src: `${base}pwa-512x512.png`, sizes: '512x512', type: 'image/png' },
