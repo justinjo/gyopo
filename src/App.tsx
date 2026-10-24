@@ -25,8 +25,10 @@ export function App(){
   useEffect(()=>{repository.load().then(saved=>{setState(saved);setView(saved.session.drill);setReady(true)})},[])
   useEffect(()=>{if(ready)repository.save(state)},[state,ready])
   useEffect(()=>{const media=matchMedia('(display-mode: standalone)'),standalone=()=>setInstalled(media.matches);media.addEventListener('change',standalone);return()=>media.removeEventListener('change',standalone)},[])
-  useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return
-    const sync=()=>{const keyboardVisible=matchMedia('(max-width: 600px)').matches&&document.activeElement===inputRef.current
+  useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return;let fullHeight=viewport.height
+    const sync=()=>{const inputFocused=document.activeElement===inputRef.current
+      const keyboardVisible=matchMedia('(max-width: 600px)').matches&&inputFocused&&fullHeight-viewport.height>80
+      if(!inputFocused)fullHeight=Math.max(fullHeight,viewport.height)
       document.documentElement.style.setProperty('--visual-viewport-height',`${viewport.height}px`)
       document.documentElement.style.setProperty('--visual-viewport-top',`${viewport.offsetTop}px`)
       document.documentElement.classList.toggle('keyboard-visible',keyboardVisible)
