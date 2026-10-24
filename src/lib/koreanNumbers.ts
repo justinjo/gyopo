@@ -33,7 +33,9 @@ const nativeOnes = ['', '하나', '둘', '셋', '넷', '다섯', '여섯', '일�
 const nativeTens = ['', '열', '스물', '서른', '마흔', '쉰', '예순', '일흔', '여든', '아흔']
 const counterOnes = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉']
 export function toNativeKorean(value: number, counterForm = false): string {
-  if (!Number.isInteger(value) || value < 1 || value > 99) throw new RangeError('Native Korean range is 1–99')
+  if (!Number.isInteger(value) || value < 0 || value > 99) throw new RangeError('Native Korean range is 0–99')
+  // Korean has no native zero; 영 is the general zero used alongside native numbers.
+  if (value === 0) return '영'
   const tens = Math.floor(value / 10), ones = value % 10
   let head = nativeTens[tens]!
   if (counterForm && value === 20) head = '스무'

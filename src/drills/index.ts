@@ -15,8 +15,8 @@ const actualDirection = (settings: Settings) => settings.direction === 'mixed' ?
 
 function numberRange(s: Settings, native: boolean): [number, number] {
   if (native) {
-    const min=Math.max(1, s.numberPreset === 'custom' ? s.customMin : 1),max=Math.min(99, s.numberPreset === 'custom' ? s.customMax : 99)
-    return min<=max?[min,max]:[1,99]
+    const min=Math.max(0, s.numberPreset === 'custom' ? s.customMin : 0),max=Math.min(99, s.numberPreset === 'custom' ? s.customMax : 99)
+    return min<=max?[min,max]:[0,99]
   }
   if (s.numberPreset === 'custom') { const min=Math.max(0,s.customMin),max=Math.min(999_999_999,s.customMax);return min<=max?[min,max]:[0,9999] }
   return s.numberPreset === 'small' ? [0,99] : s.numberPreset === 'large' ? [10_000,999_999_999] : [0,9999]
@@ -32,11 +32,12 @@ const numbers: DrillAdapter = {
     const [min,max] = numberRange(settings,native)
     const validMin = Math.min(min,max), validMax = Math.max(min,max)
     const n = validMin + Math.floor(Math.random()*(validMax-validMin+1))
-    const word = native ? toNativeKorean(n) : toSinoKorean(n)
+    const word = native ? n === 0 ? sample(['영','공']) : toNativeKorean(n) : toSinoKorean(n)
     const direction = actualDirection(settings), reverse = direction==='reverse'
     const canonical = reverse ? String(n) : word
     const candidates = nearbyNumbers(n,validMin,validMax).map(x => reverse ? String(x) : native ? toNativeKorean(x) : toSinoKorean(x))
-    return { id:`number-${native?'native':'sino'}-${n}-${direction}-${Date.now()}`,drill:'numbers',prompt:reverse?word:n.toLocaleString(),promptLabel:reverse?'Write the number':'Write it in Korean',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:native?'native':'sino',meta:{value:n,system:native?'native':'sino'} }
+    const accepted = !reverse && native && n === 0 ? [{value:'영'},{value:'공'}] : [{value:canonical}]
+    return { id:`number-${native?'native':'sino'}-${n}-${direction}-${Date.now()}`,drill:'numbers',prompt:reverse?word:n.toLocaleString(),promptLabel:reverse?'Write the number':'Write it in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:native?'native':'sino',meta:{value:n,system:native?'native':'sino'} }
   }
 }
 
@@ -91,7 +92,7 @@ export function validateCustomRange(min:number,max:number,system:Settings['numbe
   if(!Number.isInteger(min)||!Number.isInteger(max))return 'Use whole numbers.'
   if(min>max)return 'Minimum must be no greater than maximum.'
   if(min<0||max>999_999_999)return 'Range must stay between 0 and 999,999,999.'
-  if(system==='native'&&(min<1||max>99))return 'Native Korean numbers range from 1 to 99.'
+  if(system==='native'&&(min<0||max>99))return 'Native Korean numbers range from 0 to 99.'
   return null
 }
 export { parseIntegerAnswer }
