@@ -77,7 +77,7 @@ export function App(){
         </div>
       </section>
     </main>
-    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>가</span>Cards</button></nav>
+    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button></nav>
     {settingsOpen&&<SettingsPanel settings={state.settings} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>} 
   </div>
 }
