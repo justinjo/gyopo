@@ -16,7 +16,7 @@ export interface Question {
   progressKey: string
   meta?: Record<string, string | number | boolean>
 }
-export interface AnswerResult { correct: boolean; canonical: string; normalizedInput: string }
+export interface AnswerResult { correct: boolean; canonical: string; normalizedInput: string; note?: string }
 export interface DrillContext { settings: Settings; recentIds: string[]; counterBag: string[] }
 export interface DrillAdapter {
   id: DrillId

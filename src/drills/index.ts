@@ -9,7 +9,8 @@ import { digitalTime, digitalTimeAliases, koreanTime, timeAliases } from '../lib
 const check: DrillAdapter['checkAnswer'] = (q, input) => {
   const normalizer = q.meta?.digital ? normalizeTime : normalizeAnswer
   const value = normalizer(input)
-  return { correct: q.accepted.some(a => normalizer(a.value) === value), canonical: q.canonical, normalizedInput: value }
+  const accepted=q.accepted.find(a=>normalizer(a.value)===value)
+  return { correct: !!accepted, canonical: q.canonical, normalizedInput: value, note: accepted?.label }
 }
 const actualDirection = (settings: Settings) => settings.direction === 'mixed' ? sample(['forward','reverse'] as const) : settings.direction
 
@@ -60,7 +61,11 @@ const counterAdapter: DrillAdapter = {
     context.counterBag=context.counterBag.filter(id=>eligibleIds.has(id))
     if(!context.counterBag.length) context.counterBag=shuffle(eligible.map(c=>c.id))
     const id=context.counterBag.shift()!, entry=eligible.find(c=>c.id===id)!, example=sample(entry.examples)
-    return {id:`counter-${id}-${Date.now()}`,drill:'counters',prompt:example.sentence,promptLabel:`Fill in the counter · ${entry.level}`,canonical:entry.counter,accepted:[entry.counter,...(example.aliases??[])].map(value=>({value})),choices:uniqueChoices(entry.counter,shuffle(eligible.filter(c=>c.id!==id).map(c=>c.counter))),translation:example.translation,progressKey:id,meta:{gloss:entry.gloss}}
+    const peopleAlternative=id==='people'?{value:'분',label:'Note: 분 is the honorific counter for people.'}:id==='people-honor'?{value:'명',label:'Note: 분 is the honorific counter and is preferred for guests.'}:null
+    const accepted=[entry.counter,...(example.aliases??[])].map(value=>({value,label:undefined as string|undefined}));if(peopleAlternative)accepted.push(peopleAlternative)
+    const peopleCounters=peopleAlternative?new Set(['명','분']):null
+    const candidates=eligible.filter(c=>c.id!==id&&!peopleCounters?.has(c.counter)).map(c=>c.counter)
+    return {id:`counter-${id}-${Date.now()}`,drill:'counters',prompt:example.sentence,promptLabel:`Fill in the counter · ${entry.level}`,canonical:entry.counter,accepted,choices:uniqueChoices(entry.counter,shuffle(candidates)),translation:example.translation,progressKey:id,meta:{gloss:entry.gloss}}
   }
 }
 
