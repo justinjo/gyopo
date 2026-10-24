@@ -20,7 +20,7 @@ export function App(){
   const stateRef=useRef(state); stateRef.current=state
   const {needRefresh:[needRefresh,setNeedRefresh],updateServiceWorker}=useRegisterSW({immediate:true,onRegisteredSW(){},onRegisterError(error){console.error('Service worker registration failed',error)}})
 
-  useEffect(()=>{repository.load().then(saved=>{setState(saved);setReady(true)})},[])
+  useEffect(()=>{repository.load().then(saved=>{setState(saved);setView(saved.session.drill);setReady(true)})},[])
   useEffect(()=>{if(ready)repository.save(state)},[state,ready])
   useEffect(()=>{const media=matchMedia('(display-mode: standalone)'),standalone=()=>setInstalled(media.matches);media.addEventListener('change',standalone);return()=>media.removeEventListener('change',standalone)},[])
 
@@ -34,6 +34,7 @@ export function App(){
   useEffect(()=>{if(state.session.question)drillSessions.current[state.session.drill]=state.session},[state.session])
 
   function switchDrill(drill:DrillId){
+    if(view===drill)return
     setView(drill)
     setState(s=>{
       if(s.session.drill===drill)return s
