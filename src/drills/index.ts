@@ -28,30 +28,30 @@ function nearbyNumbers(n:number,min:number,max:number): number[] {
 }
 const numbers: DrillAdapter = {
   id:'numbers',label:'Numbers',checkAnswer:check,
-  createQuestion({settings}:DrillContext):Question {
-    const native = settings.numberSystem === 'mixed' ? Math.random()<.35 : settings.numberSystem === 'native'
+  createQuestion({settings,question}:DrillContext):Question {
+    const native = settings.numberSystem === 'mixed' ? question ? question.meta?.system==='native' : Math.random()<.35 : settings.numberSystem === 'native'
     const [min,max] = numberRange(settings,native)
     const validMin = Math.min(min,max), validMax = Math.max(min,max)
-    const n = validMin + Math.floor(Math.random()*(validMax-validMin+1))
+    const n = question ? Number(question.meta?.value) : validMin + Math.floor(Math.random()*(validMax-validMin+1))
     const word = native ? n === 0 ? sample(['영','공']) : toNativeKorean(n) : toSinoKorean(n)
-    const direction = actualDirection(settings), reverse = direction==='reverse'
+    const direction = (question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings)), reverse = direction==='reverse'
     const canonical = reverse ? String(n) : word
     const candidates = nearbyNumbers(n,validMin,validMax).map(x => reverse ? String(x) : native ? toNativeKorean(x) : toSinoKorean(x))
     const accepted = !reverse && native && n === 0 ? [{value:'영'},{value:'공'}] : [{value:canonical}]
-    return { id:`number-${native?'native':'sino'}-${n}-${direction}-${Date.now()}`,drill:'numbers',prompt:reverse?word:n.toLocaleString(),promptLabel:reverse?'Write the number':'Write it in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:native?'native':'sino',meta:{value:n,system:native?'native':'sino'} }
+    return { id:`number-${native?'native':'sino'}-${n}-${direction}-${Date.now()}`,drill:'numbers',prompt:reverse?word:n.toLocaleString(),promptLabel:reverse?'Write the number':'Write it in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:native?'native':'sino',meta:{value:n,system:native?'native':'sino',reverse} }
   }
 }
 
 const colorAdapter: DrillAdapter = {
   id:'colors',label:'Colors',checkAnswer:check,
-  createQuestion({settings}:DrillContext):Question {
-    const entry=sample(colors), reverse=actualDirection(settings)==='reverse'
+  createQuestion({settings,question}:DrillContext):Question {
+    const entry=question?colors.find(c=>c.id===question.progressKey)!:sample(colors), reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse'
     const forms=(color:typeof entry)=>reverse?[color.english,...color.aliasesEn]:[color.korean,...color.aliasesKo]
     const choiceForms=(color:typeof entry)=>reverse?forms(color):forms(color).filter(value=>value.endsWith('색'))
     const canonical=settings.answerMode==='choice'?sample(choiceForms(entry)):forms(entry)[0]!
     const accepted=(reverse?[entry.english,...entry.aliasesEn]:[entry.korean,...entry.aliasesKo]).map(value=>({value}))
     const candidates=colors.filter(c=>c.id!==entry.id).map(c=>sample(choiceForms(c)))
-    return {id:`color-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'colors',prompt:reverse?entry.korean:'',promptLabel:reverse?'Write the color in English':'Write the color in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{hex:entry.hex,swatch:!reverse}}
+    return {id:`color-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'colors',prompt:reverse?entry.korean:'',promptLabel:reverse?'Write the color in English':'Write the color in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{hex:entry.hex,swatch:!reverse,reverse}}
   }
 }
 
@@ -73,23 +73,23 @@ const counterAdapter: DrillAdapter = {
 
 const timeAdapter: DrillAdapter = {
   id:'time',label:'Time',checkAnswer:check,
-  createQuestion({settings}:DrillContext):Question {
-    const hour=Math.floor(Math.random()*24),minute=Math.floor(Math.random()*60)
-    const format=settings.timeFormat==='mixed'?sample(['12','24'] as const):settings.timeFormat
-    const reverse=actualDirection(settings)==='reverse', digital=digitalTime(hour,minute,format), words=koreanTime(hour,minute,format)
+  createQuestion({settings,question}:DrillContext):Question {
+    const hour=question?Number(question.meta?.hour):Math.floor(Math.random()*24),minute=question?Number(question.meta?.minute):Math.floor(Math.random()*60)
+    const format=settings.timeFormat==='mixed'?(question?question.meta?.format as '12'|'24':sample(['12','24'] as const)):settings.timeFormat
+    const reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse', digital=digitalTime(hour,minute,format), words=koreanTime(hour,minute,format)
     const canonical=reverse?digital:words
     const accepted=reverse?digitalTimeAliases(hour,minute,format).map(value=>({value})):timeAliases(hour,minute,format).map(value=>({value}))
     const alternatives=[1,2,5,10,15].map(x=>reverse?digitalTime((hour+x)%24,minute,format):koreanTime((hour+x)%24,minute,format))
-    return {id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Korean reading`,canonical,accepted,choices:uniqueChoices(canonical,alternatives),progressKey:format,meta:{digital:reverse,format}}
+    return {id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Korean reading`,canonical,accepted,choices:uniqueChoices(canonical,alternatives),progressKey:format,meta:{digital:reverse,format,hour,minute,reverse}}
   }
 }
 const dayAdapter: DrillAdapter = {
   id:'days',label:'Days',checkAnswer:check,
-  createQuestion({settings}:DrillContext):Question {
-    const entry=sample(days),reverse=actualDirection(settings)==='reverse'
+  createQuestion({settings,question}:DrillContext):Question {
+    const entry=question?days.find(day=>day.id===question.progressKey)!:sample(days),reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse'
     const canonical=reverse?entry.english:entry.korean
     const candidates=days.filter(day=>day.id!==entry.id).map(day=>reverse?day.english:day.korean)
-    return {id:`day-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'days',prompt:reverse?entry.korean:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Korean',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:entry.id}
+    return {id:`day-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'days',prompt:reverse?entry.korean:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Korean',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{reverse}}
   }
 }
 function directionLabel(reverse:boolean){return reverse?'digital':'korean'}
@@ -103,3 +103,26 @@ export function validateCustomRange(min:number,max:number,system:Settings['numbe
   return null
 }
 export { parseIntegerAnswer }
+
+// Return null only when the current subject no longer fits the selected settings.
+export function updateQuestion(question:Question,settings:Settings,previous:Settings):Question|null {
+  if(question.drill==='counters') {
+    const entry=counters.find(c=>c.id===question.progressKey)
+    return settings.counterLevel==='all'||entry&&(settings.counterLevel==='beginner'?['A1','A2']:['B1','B2']).includes(entry.level)?question:null
+  }
+  if(question.drill==='numbers') {
+    const native=settings.numberSystem==='mixed'?question.meta?.system==='native':settings.numberSystem==='native'
+    const [min,max]=numberRange(settings,native),n=Number(question.meta?.value)
+    if(n<min||n>max)return null
+  }
+  const directionChanged=settings.direction!==previous.direction
+  const systemChanged=question.drill==='numbers'&&settings.numberSystem!==previous.numberSystem
+  const formatChanged=question.drill==='time'&&settings.timeFormat!==previous.timeFormat
+  const choicesChanged=question.drill==='colors'&&settings.answerMode!==previous.answerMode
+  if(!directionChanged&&!systemChanged&&!formatChanged&&!choicesChanged)return question
+  // Recover clock values from questions saved before source metadata was added.
+  if(question.drill==='time'&&question.meta?.hour===undefined){const match=/^time-(\d+)-(\d+)-/.exec(question.id);if(!match)return question;question={...question,meta:{...question.meta,hour:Number(match[1]),minute:Number(match[2])}}}
+  const source={...question,meta:{...question.meta,reverse:question.meta?.reverse??(question.drill==='time'?!!question.meta?.digital:question.drill==='colors'?!question.meta?.swatch:question.promptLabel==='Write the number'||question.promptLabel==='Write the day in English')}}
+  const updated=adapters[question.drill].createQuestion({settings,question:source,recentIds:[],counterBag:[]})
+  return {...updated,id:question.id}
+}

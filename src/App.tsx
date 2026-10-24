@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
-import { adapters, validateCustomRange } from './drills'
+import { adapters, updateQuestion, validateCustomRange } from './drills'
 import { APP_NAME, APP_VERSION, DRILLS, initialState } from './config'
 import { flashcardLessons } from './content/flashcards'
 import { repository } from './storage/repository'
-import type { ActiveSession, DrillId, DrillScore, PersistedState, Settings } from './types'
+import type { ActiveSession, DrillId, PersistedState, Settings } from './types'
 
 const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time',days:'Days'}
 const icons:Record<DrillId,string>={numbers:'일',counters:'개',colors:'●',time:'시',days:'월'}
@@ -68,7 +68,10 @@ export function App(){
   }
   function next(){setState(s=>({...s,session:makeQuestion(s)}));requestAnimationFrame(()=>inputRef.current?.focus())}
   function keyDown(e:React.KeyboardEvent){if(e.key==='Enter'){e.preventDefault();state.session.feedback?next():submit()}}
-  function changeSettings(patch:Partial<Settings>){setState(s=>{const nextState={...s,settings:{...s.settings,...patch}};drillSessions.current={};return {...nextState,session:makeQuestion(nextState)}})}
+  function changeSettings(patch:Partial<Settings>){setState(s=>{if((Object.keys(patch) as (keyof Settings)[]).every(key=>Object.is(s.settings[key],patch[key])))return s;const settings={...s.settings,...patch},nextState={...s,settings}
+    const adapt=(session:ActiveSession):ActiveSession=>{if(!session.question)return session;const question=updateQuestion(session.question,settings,s.settings);if(!question)return makeQuestion({...nextState,session},session.drill);if(question===session.question)return session;return {...session,question,input:session.feedback?session.input:'',feedback:session.feedback?{...session.feedback,canonical:question.canonical}:null}}
+    for(const drill of Object.keys(drillSessions.current) as DrillId[]){const session=drillSessions.current[drill];if(session&&drill!==s.session.drill)drillSessions.current[drill]=adapt(session)}
+    return {...nextState,session:adapt(s.session)}})}
   async function applyUpdate(){await repository.save(stateRef.current);await updateServiceWorker(true)}
 
   const q=state.session.question,score=state.progress.byDrill[state.session.drill],total=score.correct+score.incorrect
@@ -92,7 +95,7 @@ export function App(){
       </section>
     </main>
     <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button></nav>
-    {settingsOpen&&<SettingsPanel view={view} lifetime={state.progress.lifetime} settings={state.settings} flashcardLessonId={flashcardLessonId} setFlashcardLessonId={setFlashcardLessonId} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
+    {settingsOpen&&<SettingsPanel view={view} settings={state.settings} flashcardLessonId={flashcardLessonId} setFlashcardLessonId={setFlashcardLessonId} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
   </div>
 }
 
@@ -111,19 +114,19 @@ function Flashcards({lessonId}:{lessonId:string}){
   </main>
 }
 
-function SettingsPanel({view,lifetime,settings,flashcardLessonId,setFlashcardLessonId,close,change,installed}:{view:DrillId|'flashcards';lifetime:DrillScore;settings:Settings;flashcardLessonId:string;setFlashcardLessonId:(id:string)=>void;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
+function SettingsPanel({view,settings,flashcardLessonId,setFlashcardLessonId,close,change,installed}:{view:DrillId|'flashcards';settings:Settings;flashcardLessonId:string;setFlashcardLessonId:(id:string)=>void;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
   const rangeError=validateCustomRange(settings.customMin,settings.customMax,settings.numberSystem)
-  const total=lifetime.correct+lifetime.incorrect
   const title=view==='flashcards'?'Vocab':labels[view]
   return <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)close()}}><section className="settings-panel" role="dialog" aria-modal="true" aria-label={`${title} settings`}><header><div><p className="eyebrow">Make it yours</p><h2>{title} settings</h2></div><button className="icon-button" onClick={close} aria-label="Close settings">×</button></header>
     {view==='flashcards'?<SettingGroup label="Flashcard lesson"><select value={flashcardLessonId} onChange={event=>setFlashcardLessonId(event.target.value)}>{flashcardLessons.map(item=><option key={item.id} value={item.id}>Lesson {item.number} · {item.title}</option>)}</select></SettingGroup>:<>
-      <SettingGroup label="Answer style"><Segment value={settings.answerMode} options={[['typing','Typing'],['choice','3 choices']]} onChange={answerMode=>change({answerMode:answerMode as Settings['answerMode']})}/></SettingGroup>
-      <SettingGroup label="Direction"><Segment value={settings.direction} options={[['mixed','Mixed'],['forward','To Korean'],['reverse','From Korean']]} onChange={direction=>change({direction:direction as Settings['direction']})}/></SettingGroup>
       {view==='numbers'&&<SettingGroup label="Number system"><Segment value={settings.numberSystem} options={[['mixed','Mixed'],['sino','Sino'],['native','Native']]} onChange={numberSystem=>change({numberSystem:numberSystem as Settings['numberSystem']})}/><select value={settings.numberPreset} onChange={e=>change({numberPreset:e.target.value as Settings['numberPreset']})}><option value="small">Small · 0–99</option><option value="medium">Medium · 0–9,999</option><option value="large">Large · 10,000–999m</option><option value="custom">Custom range</option></select>{settings.numberPreset==='custom'&&<><div className="range"><input type="number" value={settings.customMin} onChange={e=>change({customMin:Number(e.target.value)})}/><span>to</span><input type="number" value={settings.customMax} onChange={e=>change({customMax:Number(e.target.value)})}/></div>{rangeError&&<p className="error">{rangeError}</p>}</>}</SettingGroup>}
       {view==='counters'&&<SettingGroup label="Counter level"><Segment value={settings.counterLevel} options={[['all','All'],['beginner','A1–A2'],['intermediate','B1–B2']]} onChange={counterLevel=>change({counterLevel:counterLevel as Settings['counterLevel']})}/></SettingGroup>}
       {view==='time'&&<SettingGroup label="Time format"><Segment value={settings.timeFormat} options={[['mixed','Mixed'],['12','12 hour'],['24','24 hour']]} onChange={timeFormat=>change({timeFormat:timeFormat as Settings['timeFormat']})}/></SettingGroup>}
+      {view!=='counters'&&<SettingGroup label="Direction"><Segment value={settings.direction} options={[['mixed','Mixed'],['forward','To Korean'],['reverse','From Korean']]} onChange={direction=>change({direction:direction as Settings['direction']})}/></SettingGroup>}
     </>}
-    <section className="setting-group" aria-label="Global progress"><h3>Global progress</h3><div className="progress-row"><div><b>{total?`${Math.round(lifetime.correct/total*100)}%`:'—'}</b><span>Overall accuracy</span></div><div><b>{lifetime.correct}</b><span>correct answers</span></div></div></section>
+    {view!=='flashcards'&&<section className="global-settings" aria-label="Global settings"><h3>Global settings</h3>
+      <SettingGroup label="Answer style"><Segment value={settings.answerMode} options={[['typing','Typing'],['choice','3 choices']]} onChange={answerMode=>change({answerMode:answerMode as Settings['answerMode']})}/></SettingGroup>
+    </section>}
     <footer><span>v{APP_VERSION} · {installed?'Installed':'Web app'}</span><p>Progress stays on this device. Uninstalling or clearing site data can remove it.</p></footer>
   </section></div>
 }
