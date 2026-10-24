@@ -16,6 +16,7 @@ export function App(){
   const [view,setView]=useState<DrillId|'flashcards'>('numbers')
   const [installed,setInstalled]=useState(matchMedia('(display-mode: standalone)').matches)
   const inputRef=useRef<HTMLInputElement>(null)
+  const drillSessions=useRef<Partial<Record<DrillId,ActiveSession>>>({})
   const stateRef=useRef(state); stateRef.current=state
   const {needRefresh:[needRefresh,setNeedRefresh],updateServiceWorker}=useRegisterSW({immediate:true,onRegisteredSW(){},onRegisterError(error){console.error('Service worker registration failed',error)}})
 
@@ -30,8 +31,17 @@ export function App(){
     return {drill,question,input:'',feedback:null,translationVisible:false,recentIds,counterBag:context.counterBag}
   },[])
   useEffect(()=>{if(ready&&!state.session.question)setState(s=>({...s,session:makeQuestion(s)}))},[ready,state.session.question,makeQuestion])
+  useEffect(()=>{if(state.session.question)drillSessions.current[state.session.drill]=state.session},[state.session])
 
-  function switchDrill(drill:DrillId){setView(drill);setState(s=>({...s,session:makeQuestion({...s,session:{...s.session,drill}},drill)}))}
+  function switchDrill(drill:DrillId){
+    setView(drill)
+    setState(s=>{
+      if(s.session.drill===drill)return s
+      drillSessions.current[s.session.drill]=s.session
+      const remembered=drillSessions.current[drill]
+      return {...s,session:remembered??makeQuestion({...s,session:{...s.session,drill}},drill)}
+    })
+  }
   function submit(value=state.session.input){
     const q=state.session.question;if(!q||state.session.feedback||!value.trim())return
     const result=adapters[q.drill].checkAnswer(q,value)
@@ -43,7 +53,7 @@ export function App(){
   }
   function next(){setState(s=>({...s,session:makeQuestion(s)}));requestAnimationFrame(()=>inputRef.current?.focus())}
   function keyDown(e:React.KeyboardEvent){if(e.key==='Enter'){e.preventDefault();state.session.feedback?next():submit()}}
-  function changeSettings(patch:Partial<Settings>){setState(s=>{const nextState={...s,settings:{...s.settings,...patch}};return {...nextState,session:makeQuestion(nextState)}})}
+  function changeSettings(patch:Partial<Settings>){setState(s=>{const nextState={...s,settings:{...s.settings,...patch}};drillSessions.current={};return {...nextState,session:makeQuestion(nextState)}})}
   async function applyUpdate(){await repository.save(stateRef.current);await updateServiceWorker(true)}
 
   const q=state.session.question,score=state.progress.byDrill[state.session.drill],total=score.correct+score.incorrect
@@ -51,7 +61,8 @@ export function App(){
   return <div className="app-shell" onKeyDown={keyDown}>
     <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
-    {view==='flashcards'?<Flashcards/>:<main>
+    <div hidden={view!=='flashcards'}><Flashcards/></div>
+    <main hidden={view==='flashcards'}>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
         <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.gloss||q.meta?.format||''}</span></div>
@@ -64,7 +75,7 @@ export function App(){
           <div className="question-actions"><button className="skip" onClick={next}>Skip</button>{state.settings.answerMode==='typing'&&<button className="primary check" onClick={()=>submit()} disabled={!state.session.input.trim()}>Check <kbd>Enter</kbd></button>}</div>}
         </div>
       </section>
-    </main>}
+    </main>
     <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>가</span>Cards</button></nav>
     {settingsOpen&&<SettingsPanel settings={state.settings} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>} 
   </div>
