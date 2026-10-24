@@ -46,9 +46,11 @@ const colorAdapter: DrillAdapter = {
   id:'colors',label:'Colors',checkAnswer:check,
   createQuestion({settings}:DrillContext):Question {
     const entry=sample(colors), reverse=actualDirection(settings)==='reverse'
-    const canonical=reverse?entry.english:entry.korean
+    const forms=(color:typeof entry)=>reverse?[color.english,...color.aliasesEn]:[color.korean,...color.aliasesKo]
+    const choiceForms=(color:typeof entry)=>reverse?forms(color):forms(color).filter(value=>value.endsWith('색'))
+    const canonical=settings.answerMode==='choice'?sample(choiceForms(entry)):forms(entry)[0]!
     const accepted=(reverse?[entry.english,...entry.aliasesEn]:[entry.korean,...entry.aliasesKo]).map(value=>({value}))
-    const candidates=colors.filter(c=>c.id!==entry.id).map(c=>reverse?c.english:c.korean)
+    const candidates=colors.filter(c=>c.id!==entry.id).map(c=>sample(choiceForms(c)))
     return {id:`color-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'colors',prompt:reverse?entry.korean:'',promptLabel:reverse?'Write the color in English':'Write the color in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{hex:entry.hex,swatch:!reverse}}
   }
 }
