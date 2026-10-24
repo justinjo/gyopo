@@ -26,8 +26,14 @@ export function App(){
   useEffect(()=>{const media=matchMedia('(display-mode: standalone)'),standalone=()=>setInstalled(media.matches);media.addEventListener('change',standalone);return()=>media.removeEventListener('change',standalone)},[])
   useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return;let fullHeight=viewport.height
     const sync=()=>{const focused=document.activeElement instanceof HTMLInputElement,open=focused&&fullHeight-viewport.height>150
-      if(!open)fullHeight=Math.max(fullHeight,viewport.height);setKeyboardOpen(open);if(open)requestAnimationFrame(()=>window.scrollTo(0,0))}
-    sync();viewport.addEventListener('resize',sync);return()=>viewport.removeEventListener('resize',sync)
+      if(!open)fullHeight=Math.max(fullHeight,viewport.height)
+      document.documentElement.style.setProperty('--visual-viewport-height',`${viewport.height}px`)
+      document.documentElement.classList.toggle('keyboard-visible',open)
+      setKeyboardOpen(open)
+      if(open)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}))
+    }
+    sync();viewport.addEventListener('resize',sync);viewport.addEventListener('scroll',sync);document.addEventListener('focusin',sync);document.addEventListener('focusout',sync)
+    return()=>{viewport.removeEventListener('resize',sync);viewport.removeEventListener('scroll',sync);document.removeEventListener('focusin',sync);document.removeEventListener('focusout',sync);document.documentElement.classList.remove('keyboard-visible');document.documentElement.style.removeProperty('--visual-viewport-height')}
   },[])
 
   const makeQuestion=useCallback((base:PersistedState,drill=base.session.drill):ActiveSession=>{
