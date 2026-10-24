@@ -78,7 +78,7 @@ export function App(){
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <div hidden={view!=='flashcards'}><Flashcards key={flashcardLessonId} lessonId={flashcardLessonId}/></div>
     <main className="practice-view" hidden={view==='flashcards'}>
-      <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div></section>
+      <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{score.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
         <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.gloss||q.meta?.format||''}</span></div>
         <div className="prompt-area">{q.meta?.swatch&&<div className="swatch" style={{background:String(q.meta.hex)}} aria-label="Color swatch"/>}<div className={q.drill==='counters'?'sentence-prompt':'main-prompt'}>{q.prompt}</div></div>
