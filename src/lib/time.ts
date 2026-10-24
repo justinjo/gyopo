@@ -1,5 +1,16 @@
 import { toNativeKorean, toSinoKorean } from './koreanNumbers'
-export function digitalTime(hour: number, minute: number): string { return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}` }
+export function digitalTime(hour: number, minute: number, format: '12' | '24' = '24'): string {
+  const minutes = String(minute).padStart(2, '0')
+  if (format === '24') return `${String(hour).padStart(2, '0')}:${minutes}`
+  return `${hour % 12 || 12}:${minutes} ${hour < 12 ? 'AM' : 'PM'}`
+}
+
+export function digitalTimeAliases(hour: number, minute: number, format: '12' | '24'): string[] {
+  const twentyFourHour = digitalTime(hour, minute)
+  if (format === '24') return [twentyFourHour, `${hour}:${String(minute).padStart(2, '0')}`]
+  const twelveHour = digitalTime(hour, minute, '12')
+  return [twelveHour, twelveHour.replace(/ (?:AM|PM)$/, ''), twentyFourHour]
+}
 export function koreanTime(hour: number, minute: number, format: '12' | '24'): string {
   if (format === '24') return `${toSinoKorean(hour)} 시${minute ? ` ${toSinoKorean(minute)} 분` : ''}`
   const period = hour < 12 ? '오전' : '오후'

@@ -7,9 +7,12 @@ export function normalizeAnswer(value: string): string {
 
 export function normalizeTime(value: string): string {
   const normalized = normalizeAnswer(value)
-  const match = normalized.match(/^(\d{1,2}):(\d{1,2})$/)
+  const match = normalized.match(/^(\d{1,2}):(\d{1,2})(am|pm)?$/)
   if (!match) return normalized
-  return `${Number(match[1])}:${String(Number(match[2])).padStart(2, '0')}`
+  let hour = Number(match[1])
+  const period = match[3]
+  if (period && hour >= 1 && hour <= 12) hour = hour % 12 + (period === 'pm' ? 12 : 0)
+  return `${hour}:${String(Number(match[2])).padStart(2, '0')}`
 }
 
 export function sample<T>(items: readonly T[]): T { return items[Math.floor(Math.random() * items.length)]! }

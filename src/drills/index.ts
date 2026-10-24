@@ -4,7 +4,7 @@ import { parseIntegerAnswer, toNativeKorean, toSinoKorean } from '../lib/koreanN
 import { colors } from '../content/colors'
 import { counters } from '../content/counters'
 import { days } from '../content/days'
-import { digitalTime, koreanTime, timeAliases } from '../lib/time'
+import { digitalTime, digitalTimeAliases, koreanTime, timeAliases } from '../lib/time'
 
 const check: DrillAdapter['checkAnswer'] = (q, input) => {
   const normalizer = q.meta?.digital ? normalizeTime : normalizeAnswer
@@ -68,10 +68,10 @@ const timeAdapter: DrillAdapter = {
   createQuestion({settings}:DrillContext):Question {
     const hour=Math.floor(Math.random()*24),minute=Math.floor(Math.random()*60)
     const format=settings.timeFormat==='mixed'?sample(['12','24'] as const):settings.timeFormat
-    const reverse=actualDirection(settings)==='reverse', digital=digitalTime(hour,minute), words=koreanTime(hour,minute,format)
+    const reverse=actualDirection(settings)==='reverse', digital=digitalTime(hour,minute,format), words=koreanTime(hour,minute,format)
     const canonical=reverse?digital:words
-    const accepted=reverse?[{value:digital},{value:`${hour}:${String(minute).padStart(2,'0')}`}]:timeAliases(hour,minute,format).map(value=>({value}))
-    const alternatives=[1,2,5,10,15].map(x=>reverse?digitalTime((hour+x)%24,minute):koreanTime((hour+x)%24,minute,format))
+    const accepted=reverse?digitalTimeAliases(hour,minute,format).map(value=>({value})):timeAliases(hour,minute,format).map(value=>({value}))
+    const alternatives=[1,2,5,10,15].map(x=>reverse?digitalTime((hour+x)%24,minute,format):koreanTime((hour+x)%24,minute,format))
     return {id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Korean reading`,canonical,accepted,choices:uniqueChoices(canonical,alternatives),progressKey:format,meta:{digital:reverse,format}}
   }
 }
