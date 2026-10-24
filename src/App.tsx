@@ -4,7 +4,7 @@ import { adapters, validateCustomRange } from './drills'
 import { APP_NAME, APP_VERSION, DRILLS, initialState } from './config'
 import { flashcardLessons } from './content/flashcards'
 import { repository } from './storage/repository'
-import type { ActiveSession, DrillId, PersistedState, Settings } from './types'
+import type { ActiveSession, DrillId, DrillScore, PersistedState, Settings } from './types'
 
 const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time',days:'Days'}
 const icons:Record<DrillId,string>={numbers:'일',counters:'개',colors:'●',time:'시',days:'월'}
@@ -92,7 +92,7 @@ export function App(){
       </section>
     </main>
     <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button></nav>
-    {settingsOpen&&<SettingsPanel view={view} settings={state.settings} flashcardLessonId={flashcardLessonId} setFlashcardLessonId={setFlashcardLessonId} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
+    {settingsOpen&&<SettingsPanel view={view} lifetime={state.progress.lifetime} settings={state.settings} flashcardLessonId={flashcardLessonId} setFlashcardLessonId={setFlashcardLessonId} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
   </div>
 }
 
@@ -111,8 +111,9 @@ function Flashcards({lessonId}:{lessonId:string}){
   </main>
 }
 
-function SettingsPanel({view,settings,flashcardLessonId,setFlashcardLessonId,close,change,installed}:{view:DrillId|'flashcards';settings:Settings;flashcardLessonId:string;setFlashcardLessonId:(id:string)=>void;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
+function SettingsPanel({view,lifetime,settings,flashcardLessonId,setFlashcardLessonId,close,change,installed}:{view:DrillId|'flashcards';lifetime:DrillScore;settings:Settings;flashcardLessonId:string;setFlashcardLessonId:(id:string)=>void;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
   const rangeError=validateCustomRange(settings.customMin,settings.customMax,settings.numberSystem)
+  const total=lifetime.correct+lifetime.incorrect
   const title=view==='flashcards'?'Vocab':labels[view]
   return <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)close()}}><section className="settings-panel" role="dialog" aria-modal="true" aria-label={`${title} settings`}><header><div><p className="eyebrow">Make it yours</p><h2>{title} settings</h2></div><button className="icon-button" onClick={close} aria-label="Close settings">×</button></header>
     {view==='flashcards'?<SettingGroup label="Flashcard lesson"><select value={flashcardLessonId} onChange={event=>setFlashcardLessonId(event.target.value)}>{flashcardLessons.map(item=><option key={item.id} value={item.id}>Lesson {item.number} · {item.title}</option>)}</select></SettingGroup>:<>
@@ -122,6 +123,7 @@ function SettingsPanel({view,settings,flashcardLessonId,setFlashcardLessonId,clo
       {view==='counters'&&<SettingGroup label="Counter level"><Segment value={settings.counterLevel} options={[['all','All'],['beginner','A1–A2'],['intermediate','B1–B2']]} onChange={counterLevel=>change({counterLevel:counterLevel as Settings['counterLevel']})}/></SettingGroup>}
       {view==='time'&&<SettingGroup label="Time format"><Segment value={settings.timeFormat} options={[['mixed','Mixed'],['12','12 hour'],['24','24 hour']]} onChange={timeFormat=>change({timeFormat:timeFormat as Settings['timeFormat']})}/></SettingGroup>}
     </>}
+    <section className="setting-group" aria-label="Global progress"><h3>Global progress</h3><div className="progress-row"><div><b>{total?`${Math.round(lifetime.correct/total*100)}%`:'—'}</b><span>Overall accuracy</span></div><div><b>{lifetime.correct}</b><span>correct answers</span></div></div></section>
     <footer><span>v{APP_VERSION} · {installed?'Installed':'Web app'}</span><p>Progress stays on this device. Uninstalling or clearing site data can remove it.</p></footer>
   </section></div>
 }
