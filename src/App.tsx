@@ -24,9 +24,10 @@ export function App(){
   useEffect(()=>{repository.load().then(saved=>{setState(saved);setView(saved.session.drill);setReady(true)})},[])
   useEffect(()=>{if(ready)repository.save(state)},[state,ready])
   useEffect(()=>{const media=matchMedia('(display-mode: standalone)'),standalone=()=>setInstalled(media.matches);media.addEventListener('change',standalone);return()=>media.removeEventListener('change',standalone)},[])
-  useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return
-    const sync=()=>{document.documentElement.style.setProperty('--app-height',`${viewport.height}px`);setKeyboardOpen(window.innerHeight-viewport.height>150)}
-    sync();viewport.addEventListener('resize',sync);return()=>{viewport.removeEventListener('resize',sync);document.documentElement.style.removeProperty('--app-height')}
+  useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return;let fullHeight=viewport.height
+    const sync=()=>{const focused=document.activeElement instanceof HTMLInputElement,open=focused&&fullHeight-viewport.height>150
+      if(!open)fullHeight=Math.max(fullHeight,viewport.height);setKeyboardOpen(open);if(open)requestAnimationFrame(()=>window.scrollTo(0,0))}
+    sync();viewport.addEventListener('resize',sync);return()=>viewport.removeEventListener('resize',sync)
   },[])
 
   const makeQuestion=useCallback((base:PersistedState,drill=base.session.drill):ActiveSession=>{
