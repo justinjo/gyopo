@@ -14,6 +14,7 @@ export function App(){
   const [state,setState]=useState<PersistedState>(initialState)
   const [ready,setReady]=useState(false),[settingsOpen,setSettingsOpen]=useState(false)
   const [view,setView]=useState<DrillId|'flashcards'>('numbers')
+  const [keyboardOpen,setKeyboardOpen]=useState(false)
   const [installed,setInstalled]=useState(matchMedia('(display-mode: standalone)').matches)
   const inputRef=useRef<HTMLInputElement>(null)
   const drillSessions=useRef<Partial<Record<DrillId,ActiveSession>>>({})
@@ -23,6 +24,10 @@ export function App(){
   useEffect(()=>{repository.load().then(saved=>{setState(saved);setView(saved.session.drill);setReady(true)})},[])
   useEffect(()=>{if(ready)repository.save(state)},[state,ready])
   useEffect(()=>{const media=matchMedia('(display-mode: standalone)'),standalone=()=>setInstalled(media.matches);media.addEventListener('change',standalone);return()=>media.removeEventListener('change',standalone)},[])
+  useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return
+    const sync=()=>{document.documentElement.style.setProperty('--app-height',`${viewport.height}px`);setKeyboardOpen(window.innerHeight-viewport.height>150)}
+    sync();viewport.addEventListener('resize',sync);return()=>{viewport.removeEventListener('resize',sync);document.documentElement.style.removeProperty('--app-height')}
+  },[])
 
   const makeQuestion=useCallback((base:PersistedState,drill=base.session.drill):ActiveSession=>{
     const context={settings:base.settings,recentIds:[...base.session.recentIds],counterBag:[...base.session.counterBag]}
@@ -59,11 +64,11 @@ export function App(){
 
   const q=state.session.question,score=state.progress.byDrill[state.session.drill],total=score.correct+score.incorrect
   if(!ready||!q)return <div className="loading"><span>교</span><p>Preparing your practice…</p></div>
-  return <div className="app-shell" onKeyDown={keyDown}>
+  return <div className={`app-shell${keyboardOpen?' keyboard-open':''}`} onKeyDown={keyDown}>
     <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <div hidden={view!=='flashcards'}><Flashcards/></div>
-    <main hidden={view==='flashcards'}>
+    <main className="practice-view" hidden={view==='flashcards'}>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{state.progress.lifetime.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
         <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.gloss||q.meta?.format||''}</span></div>
