@@ -20,7 +20,7 @@ function numberRange(s: Settings, native: boolean): [number, number] {
     return min<=max?[min,max]:[0,99]
   }
   if (s.numberPreset === 'custom') { const min=Math.max(0,s.customMin),max=Math.min(999_999_999,s.customMax);return min<=max?[min,max]:[0,9999] }
-  return s.numberPreset === 'small' ? [0,99] : s.numberPreset === 'large' ? [10_000,999_999_999] : [0,9999]
+  return s.numberPreset === 'small' ? [0,99] : s.numberPreset === 'large' ? [0,999_999] : s.numberPreset === 'extra-large' ? [1_000_000,999_999_999] : [0,9999]
 }
 function nearbyNumbers(n:number,min:number,max:number): number[] {
   const offsets = shuffle([-100,-20,-10,-2,-1,1,2,10,20,100])
@@ -55,6 +55,22 @@ const colorAdapter: DrillAdapter = {
   }
 }
 
+// Exclude units that can plausibly fill the same sentence, even when their
+// meaning differs from the example translation (which is hidden by default).
+const ambiguousCounterGroups = [
+  ['years','months','days','hours','minutes'],
+  ['people','people-honor'],
+  ['things','animals','books','bottles','cups','sheets','vehicles','clothes','pairs','houses','flowers','trees','pieces','drops','spoonfuls','mouthfuls','songs','films','letters','meals'],
+  ['bottles','cups','drops','spoonfuls','mouthfuls'],
+  ['times','films','books','songs','chapters','years','months','days','hours','minutes'],
+]
+export function counterDistractors(id:string) {
+  const excluded=new Set(ambiguousCounterGroups.filter(group=>group.includes(id)).flat())
+  excluded.add(id)
+  const excludedForms=new Set(counters.filter(entry=>excluded.has(entry.id)).map(entry=>entry.counter))
+  return counters.filter(entry=>!excludedForms.has(entry.counter))
+}
+
 const counterAdapter: DrillAdapter = {
   id:'counters',label:'Counters',checkAnswer:check,
   createQuestion(context:DrillContext):Question {
@@ -66,7 +82,10 @@ const counterAdapter: DrillAdapter = {
     const alternative=id==='people'?{value:'분',label:'Note: 명 is the neutral people counter; 분 is the honorific people counter.'}:id==='people-honor'?{value:'명',label:'Note: 명 is the neutral people counter; 분 is the honorific people counter.'}:id==='mouthfuls'?{value:'병',label:'Note: 모금 counts sips; 병 counts bottles.'}:null
     const accepted=[entry.counter,...(example.aliases??[])].map(value=>({value,label:undefined as string|undefined}));if(alternative)accepted.push(alternative)
     const equivalentCounters=alternative?new Set([entry.counter,alternative.value]):null
-    const candidates=eligible.filter(c=>c.id!==id&&!equivalentCounters?.has(c.counter)).map(c=>c.counter)
+    const safeIds=new Set(counterDistractors(id).map(c=>c.id))
+    let candidates=eligible.filter(c=>safeIds.has(c.id)&&!equivalentCounters?.has(c.counter)).map(c=>c.counter)
+    // A strict level filter can leave fewer than two distinct safe distractors.
+    if(new Set(candidates).size<2)candidates=counterDistractors(id).filter(c=>!equivalentCounters?.has(c.counter)).map(c=>c.counter)
     return {id:`counter-${id}-${Date.now()}`,drill:'counters',prompt:example.sentence,promptLabel:`Fill in the counter · ${entry.level}`,canonical:entry.counter,accepted,choices:uniqueChoices(entry.counter,shuffle(candidates)),translation:example.translation,progressKey:id,meta:{gloss:entry.gloss}}
   }
 }

@@ -14,7 +14,8 @@ export function App(){
   const [state,setState]=useState<PersistedState>(initialState)
   const [ready,setReady]=useState(false),[settingsOpen,setSettingsOpen]=useState(false)
   const [view,setView]=useState<DrillId|'flashcards'>('numbers')
-  const [flashcardLessonId,setFlashcardLessonId]=useState(flashcardLessons[0].id)
+  const [flashcardLessonIds,setFlashcardLessonIds]=useState([flashcardLessons[0].id])
+  const [flashcardDirection,setFlashcardDirection]=useState<'korean'|'english'>('korean')
   const [keyboardOpen,setKeyboardOpen]=useState(false)
   const [installed,setInstalled]=useState(matchMedia('(display-mode: standalone)').matches)
   const inputRef=useRef<HTMLInputElement>(null)
@@ -79,11 +80,11 @@ export function App(){
   return <div className={`app-shell${keyboardOpen?' keyboard-open':''}${view==='flashcards'?' flashcards-open':''}`} onKeyDown={keyDown}>
     <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
-    <div hidden={view!=='flashcards'}><Flashcards key={flashcardLessonId} lessonId={flashcardLessonId}/></div>
+    <div hidden={view!=='flashcards'}><Flashcards key={`${flashcardLessonIds.join(',')}-${flashcardDirection}`} lessonIds={flashcardLessonIds} direction={flashcardDirection}/></div>
     <main className="practice-view" hidden={view==='flashcards'}>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{score.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
-        <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.gloss||q.meta?.format||''}</span></div>
+        <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.format||''}</span></div>
         <div className="prompt-area">{q.meta?.swatch&&<div className="swatch" style={{background:String(q.meta.hex)}} aria-label="Color swatch"/>}<div className={q.drill==='counters'?'sentence-prompt':'main-prompt'}>{q.prompt}</div></div>
         {q.translation&&<button className="translation-toggle" onClick={()=>setState(s=>({...s,session:{...s.session,translationVisible:!s.session.translationVisible}}))}>{state.session.translationVisible?q.translation:'Reveal English translation'}</button>}
         <div className="answer-area">
@@ -95,31 +96,33 @@ export function App(){
       </section>
     </main>
     <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button></nav>
-    {settingsOpen&&<SettingsPanel view={view} settings={state.settings} flashcardLessonId={flashcardLessonId} setFlashcardLessonId={setFlashcardLessonId} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
+    {settingsOpen&&<SettingsPanel view={view} settings={state.settings} flashcardLessonIds={flashcardLessonIds} setFlashcardLessonIds={setFlashcardLessonIds} flashcardDirection={flashcardDirection} setFlashcardDirection={setFlashcardDirection} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
   </div>
 }
 
-function Flashcards({lessonId}:{lessonId:string}){
-  const initialLesson=flashcardLessons.find(item=>item.id===lessonId)!
-  const [index,setIndex]=useState(0),[flipped,setFlipped]=useState(false),[order,setOrder]=useState(()=>initialLesson.cards.map((_,i)=>i))
-  const lesson=flashcardLessons.find(item=>item.id===lessonId)!,card=lesson.cards[order[index]]
+export function Flashcards({lessonIds,direction}:{lessonIds:string[];direction:'korean'|'english'}){
+  const cards=flashcardLessons.filter(lesson=>lessonIds.includes(lesson.id)).flatMap(lesson=>lesson.cards.map(card=>({...card,lesson})))
+  const [index,setIndex]=useState(0),[flipped,setFlipped]=useState(false),[order,setOrder]=useState(()=>cards.map((_,i)=>i))
+  const card=cards[order[index]],lesson=card.lesson
+  const showEnglish=direction==='english'?!flipped:flipped
+  const visible=showEnglish?card.english:card.korean,nextLanguage=showEnglish?'Korean':'English'
   function move(offset:number){setIndex(current=>(current+offset+order.length)%order.length);setFlipped(false)}
   function shuffleCards(){setOrder(current=>{const next=[...current];for(let i=next.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[next[i],next[j]]=[next[j],next[i]]}return next});setIndex(0);setFlipped(false)}
   return <main className="flashcards-view">
     <header className="flashcards-header"><div><p className="eyebrow">Vocabulary deck</p><h2>Flashcards</h2></div><button className="shuffle-button" onClick={shuffleCards}>Shuffle</button></header>
     <section className="flashcard-study"><div className="card-meta"><span>Lesson {lesson.number} · {lesson.koreanTitle}</span><span>{index+1} of {order.length}</span></div>
-      <button className={`flashcard ${flipped?'flipped':''}`} onClick={()=>setFlipped(value=>!value)} aria-label={flipped?`${card.english}. Show Korean`:`${card.korean}. Reveal English`}><span className="card-side-label">{flipped?'English':'한국어'}</span><strong>{flipped?card.english:card.korean}</strong><small>{flipped?'Tap to show Korean':'Tap to reveal English'}</small></button>
+      <button className={`flashcard ${flipped?'flipped':''}`} onClick={()=>setFlipped(value=>!value)} aria-label={`${visible}. ${flipped?'Show':'Reveal'} ${nextLanguage}`}><span className="card-side-label">{showEnglish?'English':'한국어'}</span><strong>{visible}</strong><small>Tap to {flipped?'show':'reveal'} {nextLanguage}</small></button>
       <div className="card-navigation"><button onClick={()=>move(-1)} aria-label="Previous card">← Previous</button><button className="primary" onClick={()=>flipped?move(1):setFlipped(true)}>{flipped?'Next →':'Reveal'}</button></div>
     </section>
   </main>
 }
 
-function SettingsPanel({view,settings,flashcardLessonId,setFlashcardLessonId,close,change,installed}:{view:DrillId|'flashcards';settings:Settings;flashcardLessonId:string;setFlashcardLessonId:(id:string)=>void;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
+function SettingsPanel({view,settings,flashcardLessonIds,setFlashcardLessonIds,flashcardDirection,setFlashcardDirection,close,change,installed}:{view:DrillId|'flashcards';settings:Settings;flashcardLessonIds:string[];setFlashcardLessonIds:(ids:string[])=>void;flashcardDirection:'korean'|'english';setFlashcardDirection:(direction:'korean'|'english')=>void;close:()=>void;change:(p:Partial<Settings>)=>void;installed:boolean}){
   const rangeError=validateCustomRange(settings.customMin,settings.customMax,settings.numberSystem)
   const title=view==='flashcards'?'Vocab':labels[view]
   return <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)close()}}><section className="settings-panel" role="dialog" aria-modal="true" aria-label={`${title} settings`}><header><div><p className="eyebrow">Make it yours</p><h2>{title} settings</h2></div><button className="icon-button" onClick={close} aria-label="Close settings">×</button></header>
-    {view==='flashcards'?<SettingGroup label="Flashcard lesson"><select value={flashcardLessonId} onChange={event=>setFlashcardLessonId(event.target.value)}>{flashcardLessons.map(item=><option key={item.id} value={item.id}>Lesson {item.number} · {item.title}</option>)}</select></SettingGroup>:<>
-      {view==='numbers'&&<SettingGroup label="Number system"><Segment value={settings.numberSystem} options={[['mixed','Mixed'],['sino','Sino'],['native','Native']]} onChange={numberSystem=>change({numberSystem:numberSystem as Settings['numberSystem']})}/><select value={settings.numberPreset} onChange={e=>change({numberPreset:e.target.value as Settings['numberPreset']})}><option value="small">Small · 0–99</option><option value="medium">Medium · 0–9,999</option><option value="large">Large · 10,000–999m</option><option value="custom">Custom range</option></select>{settings.numberPreset==='custom'&&<><div className="range"><input type="number" value={settings.customMin} onChange={e=>change({customMin:Number(e.target.value)})}/><span>to</span><input type="number" value={settings.customMax} onChange={e=>change({customMax:Number(e.target.value)})}/></div>{rangeError&&<p className="error">{rangeError}</p>}</>}</SettingGroup>}
+    {view==='flashcards'?<><SettingGroup label="Flashcard lessons">{flashcardLessons.map(item=><label className="lesson-option" key={item.id}><input type="checkbox" checked={flashcardLessonIds.includes(item.id)} disabled={flashcardLessonIds.length===1&&flashcardLessonIds.includes(item.id)} onChange={event=>setFlashcardLessonIds(event.target.checked?[...flashcardLessonIds,item.id]:flashcardLessonIds.filter(id=>id!==item.id))}/>Lesson {item.number} · {item.title}</label>)}</SettingGroup><SettingGroup label="Direction"><Segment value={flashcardDirection} options={[["korean","Korean first"],["english","English first"]]} onChange={value=>setFlashcardDirection(value as 'korean'|'english')}/></SettingGroup></>:<>
+      {view==='numbers'&&<SettingGroup label="Number system"><Segment value={settings.numberSystem} options={[['mixed','Mixed'],['sino','Sino'],['native','Native']]} onChange={numberSystem=>change({numberSystem:numberSystem as Settings['numberSystem']})}/><select value={settings.numberPreset} onChange={e=>change({numberPreset:e.target.value as Settings['numberPreset']})}><option value="small">Small · 0–99</option><option value="medium">Medium · 0–9,999</option><option value="large">Large · 0–999,999</option><option value="extra-large">Extra large · 1,000,000–999,999,999</option><option value="custom">Custom range</option></select>{settings.numberPreset==='custom'&&<><div className="range"><input type="number" value={settings.customMin} onChange={e=>change({customMin:Number(e.target.value)})}/><span>to</span><input type="number" value={settings.customMax} onChange={e=>change({customMax:Number(e.target.value)})}/></div>{rangeError&&<p className="error">{rangeError}</p>}</>}</SettingGroup>}
       {view==='counters'&&<SettingGroup label="Counter level"><Segment value={settings.counterLevel} options={[['all','All'],['beginner','A1–A2'],['intermediate','B1–B2']]} onChange={counterLevel=>change({counterLevel:counterLevel as Settings['counterLevel']})}/></SettingGroup>}
       {view==='time'&&<SettingGroup label="Time format"><Segment value={settings.timeFormat} options={[['mixed','Mixed'],['12','12 hour'],['24','24 hour']]} onChange={timeFormat=>change({timeFormat:timeFormat as Settings['timeFormat']})}/></SettingGroup>}
       {view!=='counters'&&<SettingGroup label="Direction"><Segment value={settings.direction} options={[['mixed','Mixed'],['forward','To Korean'],['reverse','From Korean']]} onChange={direction=>change({direction:direction as Settings['direction']})}/></SettingGroup>}

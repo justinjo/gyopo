@@ -10,3 +10,5 @@
 .loading img{width:72px;height:72px;margin:auto}.loading p{margin:14px 0 0}@media(prefers-reduced-motion:no-preference){.loading img{animation:loading-spin 1.2s linear infinite}@keyframes loading-spin{to{transform:rotate(1turn)}}}
 
 .global-settings{padding-top:20px}.global-settings h3{margin:0 0 12px;font-size:16px;font-weight:650}.global-settings>.setting-group:first-of-type{padding-top:0}
+
+.setting-group>.lesson-option{display:flex;align-items:center;gap:10px;font-weight:400;line-height:1.5;margin:12px 0}.lesson-option input{accent-color:var(--sage);width:18px;height:18px;flex-shrink:0}

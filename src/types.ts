@@ -36,7 +36,7 @@ export interface Settings {
   answerMode: AnswerMode
   direction: Direction
   numberSystem: 'sino' | 'native' | 'mixed'
-  numberPreset: 'small' | 'medium' | 'large' | 'custom'
+  numberPreset: 'small' | 'medium' | 'large' | 'extra-large' | 'custom'
   customMin: number
   customMax: number
   counterLevel: LevelFilter

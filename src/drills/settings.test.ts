@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { initialState } from '../config'
 import { adapters, updateQuestion } from './index'
 import type { DrillId, Settings } from '../types'
@@ -38,5 +38,26 @@ describe('updating a current question',()=>{
     expect(updated.meta?.minute).toBe(q.meta?.minute)
     expect(updated.meta?.format).toBe('24')
     expect(updated.meta?.digital).toBe(true)
+  })
+})
+
+describe('number range presets',()=>{
+  it.each([
+    ['small',0,99],['medium',0,9999],['large',0,999_999],['extra-large',1_000_000,999_999_999],
+  ] as const)('generates the full %s range', (numberPreset,min,max)=>{
+    const random=vi.spyOn(Math,'random')
+    try {
+      const preset={...settings,numberPreset}
+      random.mockReturnValue(0)
+      expect(create('numbers',preset).meta?.value).toBe(min)
+      random.mockReturnValue(1-Number.EPSILON)
+      expect(create('numbers',preset).meta?.value).toBe(max)
+    } finally {random.mockRestore()}
+  })
+  it('replaces an extra large question when switching to large',()=>{
+    const previous={...settings,numberPreset:'custom' as const,customMin:1_000_000,customMax:1_000_000}
+    const q=create('numbers',previous)
+    expect(updateQuestion(q,{...settings,numberPreset:'large'},previous)).toBeNull()
+    expect(updateQuestion(q,{...settings,numberPreset:'extra-large'},previous)).toBe(q)
   })
 })

@@ -1,5 +1,6 @@
 import { describe,expect,it,vi } from 'vitest'
-import { adapters,validateCustomRange } from '.'
+import { counters } from '../content/counters'
+import { adapters,counterDistractors,validateCustomRange } from '.'
 import { initialState } from '../config'
 describe('drill adapters',()=>{
   it('validates number ranges',()=>{expect(validateCustomRange(5,2,'sino')).toMatch(/Minimum/);expect(validateCustomRange(0,99,'native')).toBeNull();expect(validateCustomRange(0,100,'native')).toMatch(/Native/)})
@@ -11,4 +12,20 @@ describe('drill adapters',()=>{
   it('does not confuse the minutes counter with a people counter',()=>{const context={settings:initialState.settings,recentIds:[],counterBag:['minutes']};const q=adapters.counters.createQuestion(context);expect(q.canonical).toBe('분');expect(adapters.counters.checkAnswer(q,'명').correct).toBe(false)})
   it('accepts bottles for the water-drinking prompt with a unit note',()=>{const context={settings:initialState.settings,recentIds:[],counterBag:['mouthfuls']};const q=adapters.counters.createQuestion(context);const result=adapters.counters.checkAnswer(q,'병');expect(result.correct).toBe(true);expect(result.note).toContain('모금');expect(result.note).toContain('병');expect(q.choices).not.toContain('병')})
   it('keeps the bottle request specific to bottles',()=>{const context={settings:initialState.settings,recentIds:[],counterBag:['bottles']};const q=adapters.counters.createQuestion(context);expect(adapters.counters.checkAnswer(q,'모금').correct).toBe(false)})
+})
+
+describe('unambiguous counter choices',()=>{
+  it.each(['all','beginner','intermediate'] as const)('provides three safe choices for every %s counter',counterLevel=>{
+    const eligible=counters.filter(c=>counterLevel==='all'||(counterLevel==='beginner'?['A1','A2']:['B1','B2']).includes(c.level))
+    for(const entry of eligible){
+      const q=adapters.counters.createQuestion({settings:{...initialState.settings,counterLevel},recentIds:[],counterBag:[entry.id]})
+      expect(q.choices).toHaveLength(3)
+      expect(q.choices!.filter(choice=>adapters.counters.checkAnswer(q,choice).correct)).toEqual([q.canonical])
+      const safe=new Set(counterDistractors(entry.id).map(c=>c.counter))
+      expect(q.choices!.filter(choice=>choice!==q.canonical).every(choice=>safe.has(choice))).toBe(true)
+    }
+  })
+  it.each(['years','months','days','hours','minutes'])('excludes alternative durations for %s',id=>{
+    expect(counterDistractors(id).every(c=>!['년','개월','일','시간','분'].includes(c.counter))).toBe(true)
+  })
 })
