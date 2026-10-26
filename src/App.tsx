@@ -5,7 +5,7 @@ import { adapters, updateQuestion, validateCustomRange } from './drills'
 import { APP_NAME, APP_VERSION, DRILLS, initialState } from './config'
 import { flashcardLessons } from './content/flashcards'
 import { repository } from './storage/repository'
-import type { ActiveSession, DrillId, PersistedState, Settings } from './types'
+import type { ActiveSession, DrillId, PersistedState, SectionId, Settings } from './types'
 
 const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time',days:'Days'}
 const icons:Record<DrillId,string>={numbers:'일',counters:'개',colors:'●',time:'시',days:'월'}
@@ -14,7 +14,8 @@ const today=()=>new Date().toLocaleDateString('en-CA')
 export function App(){
   const [state,setState]=useState<PersistedState>(initialState)
   const [ready,setReady]=useState(false),[settingsOpen,setSettingsOpen]=useState(false)
-  const [view,setView]=useState<DrillId|'flashcards'|'alphabet'>('numbers')
+  const view=state.view
+  function setView(view:SectionId){setState(current=>({...current,view}))}
   const [flashcardLessonIds,setFlashcardLessonIds]=useState([flashcardLessons[0].id])
   const [flashcardDirection,setFlashcardDirection]=useState<'korean'|'english'>('korean')
   const [keyboardOpen,setKeyboardOpen]=useState(false)
@@ -24,7 +25,7 @@ export function App(){
   const stateRef=useRef(state); stateRef.current=state
   const {needRefresh:[needRefresh,setNeedRefresh],updateServiceWorker}=useRegisterSW({immediate:true,onRegisteredSW(){},onRegisterError(error){console.error('Service worker registration failed',error)}})
 
-  useEffect(()=>{repository.load().then(saved=>{setState(saved);setView(saved.session.drill);setReady(true)})},[])
+  useEffect(()=>{repository.load().then(saved=>{setState(saved);setReady(true)})},[])
   useEffect(()=>{if(ready)repository.save(state)},[state,ready])
   useEffect(()=>{const media=matchMedia('(display-mode: standalone)'),standalone=()=>setInstalled(media.matches);media.addEventListener('change',standalone);return()=>media.removeEventListener('change',standalone)},[])
   useEffect(()=>{const viewport=window.visualViewport;if(!viewport)return;let fullHeight=viewport.height
@@ -97,7 +98,7 @@ export function App(){
         </div>
       </section>
     </main>
-    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button><button className={view==='alphabet'?'active':''} onClick={()=>setView('alphabet')}><span>한</span>Alphabet</button></nav>
+    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button><button className={view==='alphabet'?'active':''} onClick={()=>setView('alphabet')}><span>한글</span>Alphabet</button></nav>
     {settingsOpen&&view!=='alphabet'&&<SettingsPanel view={view} settings={state.settings} flashcardLessonIds={flashcardLessonIds} setFlashcardLessonIds={setFlashcardLessonIds} flashcardDirection={flashcardDirection} setFlashcardDirection={setFlashcardDirection} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
   </div>
 }

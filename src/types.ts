@@ -1,4 +1,5 @@
 export type DrillId = 'numbers' | 'counters' | 'colors' | 'time' | 'days'
+export type SectionId = DrillId | 'flashcards' | 'alphabet'
 export type AnswerMode = 'typing' | 'choice'
 export type Direction = 'forward' | 'reverse' | 'mixed'
 export type LevelFilter = 'all' | 'beginner' | 'intermediate'
@@ -53,6 +54,7 @@ export interface ActiveSession {
 }
 export interface PersistedState {
   version: 2
+  view: SectionId
   settings: Settings
   progress: ProgressSnapshot
   session: ActiveSession

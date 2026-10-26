@@ -1,12 +1,15 @@
-import { cleanup,fireEvent,render,screen } from '@testing-library/react'
-import { afterEach,describe,expect,it } from 'vitest'
+import { cleanup,fireEvent,render,screen,waitFor } from '@testing-library/react'
+import { afterEach,beforeEach,describe,expect,it,vi } from 'vitest'
 import { Alphabet } from './Alphabet'
 import { alphabet } from './content/alphabet'
-afterEach(cleanup)
+import { alphabetAudio } from './content/alphabetAudio'
+beforeEach(()=>{vi.spyOn(HTMLMediaElement.prototype,'pause').mockImplementation(()=>{});vi.spyOn(HTMLMediaElement.prototype,'play').mockResolvedValue()})
+afterEach(()=>{cleanup();vi.restoreAllMocks()})
 describe('alphabet learning',()=>{
   it('includes all 40 distinct modern letters',()=>{
     expect(alphabet).toHaveLength(40)
     expect(new Set(alphabet.map(item=>item.letter)).size).toBe(40)
+    expect(alphabet.every(item=>alphabetAudio[item.letter]?.url.endsWith('.mp3'))).toBe(true)
   })
   it('lets learners select letters and switch groups',()=>{
     render(<Alphabet/> )
@@ -25,5 +28,27 @@ describe('alphabet learning',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Next letter →'}))
     expect(screen.queryByText('n')).not.toBeInTheDocument()
     expect(screen.getByRole('button',{name:'Reveal sound'})).toBeInTheDocument()
+  })
+})
+
+describe('letter audio',()=>{
+  it('plays the selected letter and stops audio when changing letters',()=>{
+    const {container}=render(<Alphabet/> )
+    fireEvent.click(screen.getByRole('button',{name:'Play pronunciation for ㄱ: 가'}))
+    expect(HTMLMediaElement.prototype.play).toHaveBeenCalledOnce()
+    expect(container.querySelector('audio')).toHaveAttribute('src',alphabetAudio['ㄱ'].url)
+    fireEvent.click(screen.getByRole('button',{name:'ㄴ 니은'}))
+    expect(HTMLMediaElement.prototype.pause).toHaveBeenCalled()
+    expect(container.querySelector('audio')).toHaveAttribute('src',alphabetAudio['ㄴ'].url)
+    expect(screen.getByRole('button',{name:'Play pronunciation for ㄴ: 나'})).toBeInTheDocument()
+  })
+  it('allows retrying a failed playback',async()=>{
+    vi.mocked(HTMLMediaElement.prototype.play).mockRejectedValueOnce(new Error('Unavailable'))
+    render(<Alphabet/> )
+    fireEvent.click(screen.getByRole('button',{name:'Play pronunciation for ㄱ: 가'}))
+    await waitFor(()=>expect(screen.getByRole('status')).toHaveTextContent('Couldn’t play audio'))
+    fireEvent.click(screen.getByRole('button',{name:'Play pronunciation for ㄱ: 가'}))
+    await waitFor(()=>expect(screen.queryByRole('status')).not.toBeInTheDocument())
+    expect(HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(2)
   })
 })
