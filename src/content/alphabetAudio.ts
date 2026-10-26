@@ -202,3 +202,13 @@ export const alphabetAudio:Record<string,{url:string;spoken:string;source:string
     "source": "https://www.koreanwikiproject.com/wiki/Hangeul_step_6"
   }
 }
+
+Object.assign(alphabetAudio, {
+  'batchim-k':{url:'https://www.koreanwikiproject.com/w/images/d/d5/Mok_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'목'},
+  'batchim-n':{url:'https://www.koreanwikiproject.com/w/images/a/ae/Sinmun_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'신문'},
+  'batchim-t':{url:'https://www.koreanwikiproject.com/w/images/6/66/Mat_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'맛'},
+  'batchim-l':{url:'https://www.koreanwikiproject.com/w/images/2/21/Mal_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'말'},
+  'batchim-m':{url:'https://www.koreanwikiproject.com/w/images/9/91/Saram_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'사람'},
+  'batchim-p':{url:'https://www.koreanwikiproject.com/w/images/2/20/Ip_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'입'},
+  'batchim-ng':{url:'https://www.koreanwikiproject.com/w/images/b/ba/Gang_c.mp3',source:'https://www.koreanwikiproject.com/wiki/Hangeul_step_5',spoken:'강'},
+})

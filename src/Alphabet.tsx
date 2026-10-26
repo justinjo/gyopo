@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { createAlphabetSession, type AlphabetSession } from './content/alphabetSession'
 import { alphabetAudio } from './content/alphabetAudio'
-import { alphabet, letterGroups } from './content/alphabet'
+import { alphabetDeck, letterGroups } from './content/alphabet'
 
 export function Alphabet({session,onChange}:{session?:AlphabetSession;onChange?:(session:AlphabetSession)=>void}){
   const [localSession,setLocalSession]=useState(()=>createAlphabetSession())
   const current=session??localSession
   const {group,study,index,revealed}=current
-  const letters=current.order.map(value=>alphabet.find(letter=>letter.letter===value)!)
+  const letters=current.order.map(value=>alphabetDeck(group).find(letter=>letter.letter===value)!)
   const letter=letters[index]
   function change(patch:Partial<AlphabetSession>){const next={...current,...patch};if(onChange)onChange(next);else setLocalSession(next)}
   function resetDeck(nextGroup:AlphabetSession['group'],nextStudy=study){change(createAlphabetSession(nextGroup,nextStudy))}
@@ -20,19 +20,20 @@ export function Alphabet({session,onChange}:{session?:AlphabetSession;onChange?:
     <section className="flashcard-study" aria-label="Letter details">
       {study&&<button className="shuffle-button alphabet-shuffle" onClick={()=>resetDeck(group)}>Shuffle</button>}
       <div className="card-meta"><span>{group==='all'?`All letters · ${letterGroups.find(item=>item.id===letter.group)!.label}`:letterGroups.find(item=>item.id===group)!.label}</span><span>{index+1} of {letters.length}</span></div>
-      <div className="flashcard alphabet-card"><span className="card-side-label">{study?'Recall the sound':'Letter and sound'}</span><strong>{letter.letter}</strong>
-        <LetterAudio key={letter.letter} letter={letter.letter}/>
+      <div className="flashcard alphabet-card"><span className="card-side-label">{study?'Recall the sound':'Letter and sound'}</span><strong className={group==='batchim'?'batchim-letters':undefined}>{letter.letter}</strong>
+        <LetterAudio key={`${group}-${letter.letter}`} letter={letter.letter} audioKey={letter.audioKey}/>
         {(!study||revealed)?<div className="letter-details"><h3>{letter.name}</h3><p>{letter.sound}</p><p><b>{letter.example}</b> · {letter.meaning}</p></div>:<button className="shuffle-button" onClick={()=>change({revealed:true})}>Reveal sound</button>}
       </div>
       <div className="card-navigation"><button onClick={()=>move(-1)} aria-label="Previous letter">← Previous</button><button className="primary" onClick={()=>move(1)}>Next letter →</button></div>
     </section>
+    {group==='batchim'&&<div className="batchim-intro alphabet-intro"><h3>받침 · Final consonants</h3><p>A consonant at the bottom of a syllable block is called 받침. In 한, ㄴ is the 받침. Start with these seven final sounds, pronounced at the end of a word.</p><p>Before a vowel, a final consonant often joins the next syllable: 집에 → 지베. Final ㅇ stays in place. Nearby consonants can also change pronunciation.</p><details><summary>Consonant clusters and ㅎ</summary><p>Some blocks end in two consonants: ㄳ, ㄵ, ㄶ, ㄺ, ㄻ, ㄼ, ㄽ, ㄾ, ㄿ, ㅀ, ㅄ. Their pronunciation depends on what follows: 값 → 갑, 값이 → 갑씨. Final ㅎ can become silent or affect the next consonant: 좋아 → 조아, 좋다 → 조타.</p></details></div>}
     <p className="alphabet-intro">English sound guides are approximate. Consonant sounds change with position; aspirated consonants use a puff of air, while double consonants are tense. Many speakers pronounce ㅐ and ㅔ alike.</p>
-    <p className="alphabet-intro audio-credit">Recordings: <a href={alphabetAudio[letter.letter].source} target="_blank" rel="noopener noreferrer">Korean Wiki Project</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 3.0</a>. Unmodified. Consonants are demonstrated in syllables.</p>
+    <p className="alphabet-intro audio-credit">Recordings: <a href={alphabetAudio[letter.audioKey??letter.letter].source} target="_blank" rel="noopener noreferrer">Korean Wiki Project</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 3.0</a>. Unmodified. Consonants are demonstrated in syllables.</p>
   </main>
 }
 
-function LetterAudio({letter}:{letter:string}){
-  const recording=alphabetAudio[letter]
+function LetterAudio({letter,audioKey}:{letter:string;audioKey?:string}){
+  const recording=alphabetAudio[audioKey??letter]
   const audioRef=useRef<HTMLAudioElement>(null)
   const [playing,setPlaying]=useState(false),[error,setError]=useState(false)
   useEffect(()=>{const audio=audioRef.current;return()=>{audio?.pause()}},[])

@@ -20,3 +20,5 @@
  .alphabet-groups{max-width:680px;margin:0 auto 18px}.letter-audio{display:flex;flex-direction:column;align-items:center;gap:8px}.speaker-button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;background:var(--paper);padding:10px 16px;min-height:44px}.speaker-button:hover,.speaker-button[aria-pressed=true]{border-color:var(--sage);background:var(--soft-sage)}.speaker-button:focus-visible{outline:2px solid var(--sage);outline-offset:3px}.letter-audio small{font-size:12px}.audio-credit{font-size:12px}.audio-credit a{color:inherit;text-underline-offset:3px}
 
 .alphabet-shuffle{display:block;margin:0 0 12px auto}
+
+.alphabet-card .batchim-letters{font-size:clamp(24px,5vw,42px);overflow-wrap:anywhere}.batchim-intro h3{color:var(--ink);margin-bottom:8px}.batchim-intro summary{cursor:pointer;color:var(--ink)}

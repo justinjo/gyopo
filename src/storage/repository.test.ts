@@ -1,3 +1,4 @@
+import { createAlphabetSession } from '../content/alphabetSession'
 import { describe,expect,it } from 'vitest'
 import { initialState } from '../config'
 import { migrate,repository } from './repository'
@@ -41,4 +42,11 @@ describe('Hangul session persistence',()=>{
     expect(migrate({alphabetSession:invalid}).alphabetSession.order).toHaveLength(40)
     expect(migrate({alphabetSession:{...initialState.alphabetSession,index:50}}).alphabetSession.index).toBe(0)
   })
+})
+
+it('restores a 받침 deck without changing its order or position',()=>{
+  const session=createAlphabetSession('batchim')
+  session.index=4
+  session.revealed=true
+  expect(migrate({alphabetSession:session}).alphabetSession).toEqual(session)
 })

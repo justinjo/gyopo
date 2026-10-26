@@ -1,7 +1,7 @@
 import { cleanup,fireEvent,render,screen,waitFor } from '@testing-library/react'
 import { afterEach,beforeEach,describe,expect,it,vi } from 'vitest'
 import { Alphabet } from './Alphabet'
-import { alphabet } from './content/alphabet'
+import { alphabet, batchim } from './content/alphabet'
 import { alphabetAudio } from './content/alphabetAudio'
 beforeEach(()=>{vi.spyOn(Math,'random').mockReturnValue(1-Number.EPSILON);vi.spyOn(HTMLMediaElement.prototype,'pause').mockImplementation(()=>{});vi.spyOn(HTMLMediaElement.prototype,'play').mockResolvedValue()})
 afterEach(()=>{cleanup();vi.restoreAllMocks()})
@@ -101,5 +101,36 @@ describe('restoring Hangul study',()=>{
     expect(restored.container.querySelector('.alphabet-card strong')!.textContent).toBe(visibleLetter)
     expect(screen.queryByRole('button',{name:'Reveal sound'})).not.toBeInTheDocument()
     expect(screen.getByText('1 of 40')).toBeInTheDocument()
+  })
+})
+
+describe('reference sections',()=>{
+  it('offers All letters in both study and reference modes',()=>{
+    render(<Alphabet/> )
+    expect(screen.getByRole('button',{name:'All letters'})).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Reference'}))
+    expect(screen.getByRole('button',{name:'All letters'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'All letters'})).toHaveAttribute('aria-pressed','true')
+    expect(screen.getByText('1 of 40')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Study cards'}))
+    expect(screen.getByRole('button',{name:'All letters'})).toBeInTheDocument()
+  })
+})
+
+describe('받침 learning',()=>{
+  it('covers seven final sounds with word recordings',()=>{
+    expect(batchim).toHaveLength(7)
+    expect(batchim.every(item=>alphabetAudio[item.audioKey!]?.spoken===item.example)).toBe(true)
+  })
+  it('studies final consonants and reveals their sounds',()=>{
+    render(<Alphabet/> )
+    fireEvent.click(screen.getByRole('button',{name:'받침'}))
+    expect(screen.getByText('1 of 7')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Play pronunciation for ㄱ · ㄲ · ㅋ: 목'})).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Reveal sound'}))
+    expect(screen.getByText('Final ㄱ sound')).toBeInTheDocument()
+    expect(screen.getByText(/· neck/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Reference'}))
+    expect(screen.getByRole('button',{name:'ㅇ Final ㅇ sound'})).toBeInTheDocument()
   })
 })
