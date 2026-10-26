@@ -1,3 +1,4 @@
+import { Alphabet } from './Alphabet'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { adapters, updateQuestion, validateCustomRange } from './drills'
@@ -13,7 +14,7 @@ const today=()=>new Date().toLocaleDateString('en-CA')
 export function App(){
   const [state,setState]=useState<PersistedState>(initialState)
   const [ready,setReady]=useState(false),[settingsOpen,setSettingsOpen]=useState(false)
-  const [view,setView]=useState<DrillId|'flashcards'>('numbers')
+  const [view,setView]=useState<DrillId|'flashcards'|'alphabet'>('numbers')
   const [flashcardLessonIds,setFlashcardLessonIds]=useState([flashcardLessons[0].id])
   const [flashcardDirection,setFlashcardDirection]=useState<'korean'|'english'>('korean')
   const [keyboardOpen,setKeyboardOpen]=useState(false)
@@ -68,7 +69,7 @@ export function App(){
     })
   }
   function next(){setState(s=>({...s,session:makeQuestion(s)}));requestAnimationFrame(()=>inputRef.current?.focus())}
-  function keyDown(e:React.KeyboardEvent){if(e.key==='Enter'){e.preventDefault();state.session.feedback?next():submit()}}
+  function keyDown(e:React.KeyboardEvent){if(view==='flashcards'||view==='alphabet')return;if(e.key==='Enter'){e.preventDefault();state.session.feedback?next():submit()}}
   function changeSettings(patch:Partial<Settings>){setState(s=>{if((Object.keys(patch) as (keyof Settings)[]).every(key=>Object.is(s.settings[key],patch[key])))return s;const settings={...s.settings,...patch},nextState={...s,settings}
     const adapt=(session:ActiveSession):ActiveSession=>{if(!session.question)return session;const question=updateQuestion(session.question,settings,s.settings);if(!question)return makeQuestion({...nextState,session},session.drill);if(question===session.question)return session;return {...session,question,input:session.feedback?session.input:'',feedback:session.feedback?{...session.feedback,canonical:question.canonical}:null}}
     for(const drill of Object.keys(drillSessions.current) as DrillId[]){const session=drillSessions.current[drill];if(session&&drill!==s.session.drill)drillSessions.current[drill]=adapt(session)}
@@ -77,11 +78,12 @@ export function App(){
 
   const q=state.session.question,score=state.progress.byDrill[state.session.drill],total=score.correct+score.incorrect
   if(!ready||!q)return <div className="loading" role="status"><img src="/logo.svg" alt=""/><p>Preparing your practice…</p></div>
-  return <div className={`app-shell${keyboardOpen?' keyboard-open':''}${view==='flashcards'?' flashcards-open':''}`} onKeyDown={keyDown}>
-    <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} aria-label="Open settings">⌘</button></header>
+  return <div className={`app-shell${keyboardOpen?' keyboard-open':''}${view==='flashcards'||view==='alphabet'?' flashcards-open':''}`} onKeyDown={keyDown}>
+    <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} hidden={view==='alphabet'} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <div hidden={view!=='flashcards'}><Flashcards key={`${flashcardLessonIds.join(',')}-${flashcardDirection}`} lessonIds={flashcardLessonIds} direction={flashcardDirection}/></div>
-    <main className="practice-view" hidden={view==='flashcards'}>
+    <div hidden={view!=='alphabet'}><Alphabet/></div>
+    <main className="practice-view" hidden={view==='flashcards'||view==='alphabet'}>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{score.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
         <div className="question-meta"><span>{q.promptLabel}</span><span>{q.meta?.system||q.meta?.format||''}</span></div>
@@ -95,8 +97,8 @@ export function App(){
         </div>
       </section>
     </main>
-    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button></nav>
-    {settingsOpen&&<SettingsPanel view={view} settings={state.settings} flashcardLessonIds={flashcardLessonIds} setFlashcardLessonIds={setFlashcardLessonIds} flashcardDirection={flashcardDirection} setFlashcardDirection={setFlashcardDirection} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
+    <nav className="tabs" aria-label="Practice sections">{DRILLS.map(id=><button key={id} className={view===id?'active':''} onClick={()=>switchDrill(id)}><span>{icons[id]}</span>{labels[id]}</button>)}<button className={view==='flashcards'?'active':''} onClick={()=>setView('flashcards')}><span>단어</span>Vocab</button><button className={view==='alphabet'?'active':''} onClick={()=>setView('alphabet')}><span>한</span>Alphabet</button></nav>
+    {settingsOpen&&view!=='alphabet'&&<SettingsPanel view={view} settings={state.settings} flashcardLessonIds={flashcardLessonIds} setFlashcardLessonIds={setFlashcardLessonIds} flashcardDirection={flashcardDirection} setFlashcardDirection={setFlashcardDirection} close={()=>setSettingsOpen(false)} change={changeSettings} installed={installed}/>}
   </div>
 }
 
