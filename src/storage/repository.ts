@@ -1,3 +1,4 @@
+import { restoreAlphabetSession } from '../content/alphabetSession'
 import { DRILLS, initialState } from '../config'
 import type { PersistedState } from '../types'
 
@@ -11,6 +12,7 @@ export function migrate(raw: unknown): PersistedState {
   return {
     ...fresh,...old,version:2,
     view:[...DRILLS,'flashcards','alphabet'].includes(old.view??'')?old.view!:old.session?.drill??fresh.view,
+    alphabetSession:restoreAlphabetSession(old.alphabetSession),
     settings:{...fresh.settings,...old.settings},
     progress:{...fresh.progress,...old.progress,lifetime:{...fresh.progress.lifetime,...old.progress?.lifetime},byDrill:{...fresh.progress.byDrill,...old.progress?.byDrill},daily:old.progress?.daily??[],counterMistakes:old.progress?.counterMistakes??{}},
     session:{...fresh.session,...old.session}

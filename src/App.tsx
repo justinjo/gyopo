@@ -83,7 +83,7 @@ export function App(){
     <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} hidden={view==='alphabet'} aria-label="Open settings">⌘</button></header>
     {needRefresh&&<aside className="update-banner"><div><strong>Update available</strong><span>Your place has been saved.</span></div><button onClick={()=>setNeedRefresh(false)}>Later</button><button className="dark" onClick={applyUpdate}>Update</button></aside>}
     <div hidden={view!=='flashcards'}><Flashcards key={`${flashcardLessonIds.join(',')}-${flashcardDirection}`} lessonIds={flashcardLessonIds} direction={flashcardDirection}/></div>
-    <div hidden={view!=='alphabet'}><Alphabet/></div>
+    <div hidden={view!=='alphabet'}><Alphabet session={state.alphabetSession} onChange={alphabetSession=>setState(current=>({...current,alphabetSession}))}/></div>
     <main className="practice-view" hidden={view==='flashcards'||view==='alphabet'}>
       <section className="progress-row" aria-label="Progress"><div><b>{total?Math.round(score.correct/total*100):'—'}{total?'%':''}</b><span>{labels[state.session.drill]} accuracy</span></div><div><b>{score.correct}</b><span>correct answers</span></div></section>
       <section className="practice-card">
