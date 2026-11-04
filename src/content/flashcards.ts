@@ -22,5 +22,12 @@ export const flashcardLessons:FlashcardLesson[]=[
     {korean:'걸리다',english:'to take (time)'},{korean:'분',english:'minute'},{korean:'시간',english:'hour, time'},{korean:'얼마나',english:'how long, how much'},{korean:'쯤',english:'about, around'},
     {korean:'출근하다',english:'to go to work'},{korean:'퇴근하다',english:'to leave work'},{korean:'타다',english:'to ride, to take'},{korean:'도서관',english:'library'},{korean:'공원',english:'park'},
     {korean:'공항',english:'airport'},{korean:'백화점',english:'department store'},{korean:'바닷가',english:'beach'},{korean:'시끄럽다',english:'to be noisy'},{korean:'피곤하다',english:'to be tired'}
+  ]},
+  {id:'requests-obligations',number:4,title:'Requests and obligations',koreanTitle:'요청과 의무',cards:[
+    {korean:'앉다',english:'to sit'},{korean:'기다리다',english:'to wait'},{korean:'일어나다',english:'to wake up, to get up'},{korean:'자다',english:'to sleep'},{korean:'씻다',english:'to wash'},
+    {korean:'청소하다',english:'to clean'},{korean:'요리하다',english:'to cook'},{korean:'쉬다',english:'to rest'},{korean:'운동하다',english:'to exercise'},{korean:'듣다',english:'to listen'},
+    {korean:'읽다',english:'to read'},{korean:'쓰다',english:'to write'},{korean:'말하다',english:'to speak'},{korean:'내리다',english:'to get off'},{korean:'찍다',english:'to take (a photo)'},
+    {korean:'팔다',english:'to sell'},{korean:'만들다',english:'to make'},{korean:'외우다',english:'to memorize'},{korean:'숙제',english:'homework'},{korean:'시험',english:'exam, test'},
+    {korean:'질문하다',english:'to ask a question'},{korean:'녹음하다',english:'to record'},{korean:'벗다',english:'to take off'},{korean:'약',english:'medicine'},{korean:'감기에 걸리다',english:'to catch a cold'}
   ]}
 ]
