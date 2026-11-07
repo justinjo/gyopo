@@ -1,26 +1,36 @@
+import { restoreFlashcardSession } from '../content/flashcardSession'
 import { restoreAlphabetSession } from '../content/alphabetSession'
 import { restoreRecentSubjectKeys, subjectKey } from '../drills/selection'
-import { DRILLS, initialState } from '../config'
-import type { PersistedState } from '../types'
+import { createDrillSession, DRILLS, initialState } from '../config'
+import type { ActiveSession, DrillId, PersistedState } from '../types'
 
 const DB='gyopo-progress', STORE='state', KEY='main', DB_VERSION=2
 const cloneInitial=()=>structuredClone(initialState)
 
+function isDrill(value:unknown):value is DrillId {return DRILLS.includes(value as DrillId)}
+function restoreDrillSession(raw:unknown,drill:DrillId):ActiveSession {
+  const fresh=createDrillSession(drill)
+  if(!raw||typeof raw!=='object')return fresh
+  const saved=raw as Partial<ActiveSession>&{recentIds?:unknown}
+  const question=saved.question?.drill===drill?saved.question:null
+  const restoredQuestion=question?{...question,subjectKey:question.subjectKey??(question.subject?subjectKey(question.subject):restoreRecentSubjectKeys([question.id])[0]??'')}:null
+  return {...fresh,question:restoredQuestion,input:typeof saved.input==='string'?saved.input:'',feedback:restoredQuestion?saved.feedback??null:null,translationVisible:saved.translationVisible===true,recentSubjectKeys:restoreRecentSubjectKeys(saved.recentSubjectKeys??saved.recentIds),counterBag:Array.isArray(saved.counterBag)?saved.counterBag.filter(id=>typeof id==='string'):[]}
+}
 export function migrate(raw: unknown): PersistedState {
   if(!raw||typeof raw!=='object')return cloneInitial()
-  const old=raw as Partial<PersistedState>&{version?:number}
+  const old=raw as Partial<Omit<PersistedState,'version'>>&{version?:number;session?:Partial<ActiveSession>}
   const fresh=cloneInitial()
-  const legacySession=old.session as (Partial<PersistedState['session']>&{recentIds?:unknown})|undefined
-  const {recentIds:legacyIds,...savedSession}=legacySession??{}
-  const question=savedSession.question
-  const restoredQuestion=question?{...question,subjectKey:question.subjectKey??(question.subject?subjectKey(question.subject):restoreRecentSubjectKeys([question.id])[0]??'')}:question
+  const activeDrill=isDrill(old.activeDrill)?old.activeDrill:isDrill(old.session?.drill)?old.session.drill:fresh.activeDrill
+  const drillSessions={...fresh.drillSessions}
+  for(const drill of DRILLS)drillSessions[drill]=restoreDrillSession(old.drillSessions?.[drill]??(old.session?.drill===drill?old.session:undefined),drill)
   return {
-    ...fresh,...old,version:2,
-    view:[...DRILLS,'flashcards','alphabet'].includes(old.view??'')?old.view!:old.session?.drill??fresh.view,
+    version:3,
+    view:[...DRILLS,'flashcards','alphabet'].includes(old.view??'')?old.view!:activeDrill,
+    activeDrill,drillSessions,
     alphabetSession:restoreAlphabetSession(old.alphabetSession),
+    flashcardSession:restoreFlashcardSession(old.flashcardSession),
     settings:{...fresh.settings,...old.settings},
     progress:{...fresh.progress,...old.progress,lifetime:{...fresh.progress.lifetime,...old.progress?.lifetime},byDrill:{...fresh.progress.byDrill,...old.progress?.byDrill},daily:old.progress?.daily??[],counterMistakes:old.progress?.counterMistakes??{}},
-    session:{...fresh.session,...savedSession,question:restoredQuestion??null,recentSubjectKeys:restoreRecentSubjectKeys(savedSession.recentSubjectKeys??legacyIds)}
   }
 }
 function openDb():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const request=indexedDB.open(DB,DB_VERSION);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE)};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}

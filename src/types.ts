@@ -1,4 +1,5 @@
 import type { AlphabetSession } from './content/alphabetSession'
+import type { FlashcardSession } from './content/flashcardSession'
 export type DrillId = 'numbers' | 'counters' | 'colors' | 'time' | 'days'
 export type SectionId = DrillId | 'flashcards' | 'alphabet'
 export type AnswerMode = 'typing' | 'choice'
@@ -63,10 +64,12 @@ export interface ActiveSession {
   counterBag: string[]
 }
 export interface PersistedState {
-  version: 2
+  version: 3
   view: SectionId
   alphabetSession: AlphabetSession
   settings: Settings
   progress: ProgressSnapshot
-  session: ActiveSession
+  activeDrill: DrillId
+  drillSessions: Record<DrillId, ActiveSession>
+  flashcardSession: FlashcardSession
 }

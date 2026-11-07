@@ -1,9 +1,11 @@
 import { createAlphabetSession } from '../content/alphabetSession'
 import { describe,expect,it } from 'vitest'
-import { initialState } from '../config'
+import { DRILLS, initialState } from '../config'
+import { createFlashcardSession, flashcardDeck } from '../content/flashcardSession'
+import { adapters } from '../drills'
 import { migrate,repository } from './repository'
 describe('persistence',()=>{
-  it('migrates partial old state without losing scores',()=>{const migrated=migrate({version:1,progress:{lifetime:{correct:12,incorrect:3}}});expect(migrated.version).toBe(2);expect(migrated.progress.lifetime.correct).toBe(12);expect(migrated.settings.answerMode).toBe('choice')})
+  it('migrates partial old state without losing scores',()=>{const migrated=migrate({version:1,progress:{lifetime:{correct:12,incorrect:3}}});expect(migrated.version).toBe(3);expect(migrated.progress.lifetime.correct).toBe(12);expect(migrated.settings.answerMode).toBe('choice')})
   it('round trips IndexedDB state',async()=>{const state=structuredClone(initialState);state.progress.lifetime.correct=7;await repository.save(state);expect((await repository.load()).progress.lifetime.correct).toBe(7)})
 })
 
@@ -53,10 +55,59 @@ it('restores a 받침 deck without changing its order or position',()=>{
 
 
 it('migrates old question-ID history to stable subject keys without losing the active question',()=>{
-  const old={session:{...initialState.session,recentSubjectKeys:undefined,recentIds:['color-red-en-123','color-blue-ko-124'],question:{id:'color-red-en-123',drill:'colors',progressKey:'red',canonical:'red'}}}
+  const old={session:{...initialState.drillSessions.colors,drill:'colors',recentSubjectKeys:undefined,recentIds:['color-red-en-123','color-blue-ko-124'],question:{id:'color-red-en-123',drill:'colors',progressKey:'red',canonical:'red'}}}
   const restored=migrate(old)
-  expect(restored.session.recentSubjectKeys).toEqual(['colors:red','colors:blue'])
-  expect(restored.session.question?.subjectKey).toBe('colors:red')
-  expect(restored.session.question?.canonical).toBe('red')
-  expect(restored.session).not.toHaveProperty('recentIds')
+  expect(restored.drillSessions.colors.recentSubjectKeys).toEqual(['colors:red','colors:blue'])
+  expect(restored.drillSessions.colors.question?.subjectKey).toBe('colors:red')
+  expect(restored.drillSessions.colors.question?.canonical).toBe('red')
+  expect(restored.drillSessions.colors).not.toHaveProperty('recentIds')
+})
+
+
+describe('per-section sessions',()=>{
+  it('migrates the v2 active drill with question, answer, feedback, and progress intact',()=>{
+    const question=adapters.days.buildQuestion({drill:'days',entryId:'monday',reverse:false},initialState.settings)
+    const session={...initialState.drillSessions.days,question,input:'Monday',feedback:{correct:false,canonical:question.canonical,normalizedInput:'monday'},recentSubjectKeys:[question.subjectKey],translationVisible:true}
+    const restored=migrate({version:2,view:'flashcards',session,progress:{lifetime:{correct:4,incorrect:1}}})
+    expect(restored.activeDrill).toBe('days')
+    expect(restored.drillSessions.days).toEqual(session)
+    expect(restored.drillSessions.numbers.question).toBeNull()
+    expect(restored.progress.lifetime).toEqual({correct:4,incorrect:1})
+    expect(restored).not.toHaveProperty('session')
+    expect(restored.flashcardSession.lessonIds).toEqual(['house-family'])
+  })
+  it('round trips every drill session including inactive questions and selection state',async()=>{
+    const state=structuredClone(initialState)
+    for(const drill of DRILLS){
+      const selection=adapters[drill].selectNext({settings:state.settings,recentSubjectKeys:[],counterBag:[]})
+      const question=adapters[drill].buildQuestion(selection.subject,state.settings)
+      state.drillSessions[drill]={drill,question,input:question.canonical,feedback:adapters[drill].checkAnswer(question,question.canonical),translationVisible:true,recentSubjectKeys:[question.subjectKey],counterBag:selection.counterBag}
+    }
+    state.activeDrill='days'
+    state.view='alphabet'
+    await repository.save(state)
+    const restored=await repository.load()
+    expect(restored.drillSessions).toEqual(state.drillSessions)
+    expect(restored.activeDrill).toBe('days')
+  })
+  it('round trips vocabulary selection, direction, shuffled order, position, and reveal',async()=>{
+    const state=structuredClone(initialState)
+    state.flashcardSession=createFlashcardSession(['animals-opinions','requests-obligations'],'english')
+    state.flashcardSession.order.reverse()
+    state.flashcardSession.index=31
+    state.flashcardSession.revealed=true
+    await repository.save(state)
+    expect((await repository.load()).flashcardSession).toEqual(state.flashcardSession)
+  })
+  it('repairs stale vocabulary decks while retaining valid lesson choices and direction',()=>{
+    const session=createFlashcardSession(['requests-obligations'],'english')
+    session.order.pop()
+    const restored=migrate({flashcardSession:{...session,lessonIds:['requests-obligations','removed-lesson'],index:20,revealed:true}}).flashcardSession
+    expect(restored.lessonIds).toEqual(['requests-obligations'])
+    expect(restored.direction).toBe('english')
+    expect(restored.order).toEqual(flashcardDeck(restored.lessonIds).map(card=>card.key))
+    expect(restored.index).toBe(0)
+    expect(restored.revealed).toBe(false)
+    expect(migrate({flashcardSession:{lessonIds:['missing'],order:[]}}).flashcardSession.lessonIds).toEqual(['house-family'])
+  })
 })
