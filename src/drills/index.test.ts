@@ -29,3 +29,23 @@ describe('unambiguous counter choices',()=>{
     expect(counterDistractors(id).every(c=>!['년','개월','일','시간','분'].includes(c.counter))).toBe(true)
   })
 })
+
+describe('recent weekday and color questions',()=>{
+  it.each(['days','colors'] as const)('leaves two intervening questions before repeating a %s item',drill=>{
+    const random=vi.spyOn(Math,'random').mockReturnValue(0)
+    try {
+      let recentIds:string[]=[]
+      const keys:string[]=[]
+      for(let i=0;i<12;i++){
+        const settings={...initialState.settings,direction:i%2?'reverse' as const:'forward' as const}
+        const question=adapters[drill].createQuestion({settings,recentIds,counterBag:[]})
+        expect(keys.slice(-2)).not.toContain(question.progressKey)
+        keys.push(question.progressKey)
+        recentIds=[question.id,...recentIds].slice(0,12)
+        const refreshed=adapters[drill].createQuestion({settings,question,recentIds,counterBag:[]})
+        expect(refreshed.progressKey).toBe(question.progressKey)
+      }
+      expect(keys[3]).toBe(keys[0])
+    } finally { random.mockRestore() }
+  })
+})

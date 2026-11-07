@@ -14,6 +14,11 @@ const check: DrillAdapter['checkAnswer'] = (q, input) => {
 }
 const actualDirection = (settings: Settings) => settings.direction === 'mixed' ? sample(['forward','reverse'] as const) : settings.direction
 
+function sampleOutsideRecent<T extends {id:string}>(entries:readonly T[],recentIds:string[],prefix:string):T {
+  const recent=recentIds.filter(id=>id.startsWith(`${prefix}-`)).slice(0,2)
+  return sample(entries.filter(entry=>!recent.some(id=>id.startsWith(`${prefix}-${entry.id}-`))))
+}
+
 function numberRange(s: Settings, native: boolean): [number, number] {
   if (native) {
     const min=Math.max(0, s.numberPreset === 'custom' ? s.customMin : 0),max=Math.min(99, s.numberPreset === 'custom' ? s.customMax : 99)
@@ -44,8 +49,8 @@ const numbers: DrillAdapter = {
 
 const colorAdapter: DrillAdapter = {
   id:'colors',label:'Colors',checkAnswer:check,
-  createQuestion({settings,question}:DrillContext):Question {
-    const entry=question?colors.find(c=>c.id===question.progressKey)!:sample(colors), reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse'
+  createQuestion({settings,question,recentIds}:DrillContext):Question {
+    const entry=question?colors.find(c=>c.id===question.progressKey)!:sampleOutsideRecent(colors,recentIds,'color'), reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse'
     const forms=(color:typeof entry)=>reverse?[color.english,...color.aliasesEn]:[color.korean,...color.aliasesKo]
     const choiceForms=(color:typeof entry)=>reverse?forms(color):forms(color).filter(value=>value.endsWith('색'))
     const canonical=settings.answerMode==='choice'?sample(choiceForms(entry)):forms(entry)[0]!
@@ -104,8 +109,8 @@ const timeAdapter: DrillAdapter = {
 }
 const dayAdapter: DrillAdapter = {
   id:'days',label:'Days',checkAnswer:check,
-  createQuestion({settings,question}:DrillContext):Question {
-    const entry=question?days.find(day=>day.id===question.progressKey)!:sample(days),reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse'
+  createQuestion({settings,question,recentIds}:DrillContext):Question {
+    const entry=question?days.find(day=>day.id===question.progressKey)!:sampleOutsideRecent(days,recentIds,'day'),reverse=(question&&settings.direction==='mixed'?(question.meta?.reverse?'reverse':'forward'):actualDirection(settings))==='reverse'
     const canonical=reverse?entry.english:entry.korean
     const candidates=days.filter(day=>day.id!==entry.id).map(day=>reverse?day.english:day.korean)
     return {id:`day-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'days',prompt:reverse?entry.korean:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Korean',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{reverse}}
