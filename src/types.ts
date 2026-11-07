@@ -6,8 +6,15 @@ export type Direction = 'forward' | 'reverse' | 'mixed'
 export type LevelFilter = 'all' | 'beginner' | 'intermediate'
 
 export interface AcceptedAnswer { value: string; label?: string }
+export type QuestionSubject =
+  | {drill:'numbers'; value:number; system:'native'|'sino'; reverse:boolean}
+  | {drill:'colors'|'days'; entryId:string; reverse:boolean}
+  | {drill:'counters'; entryId:string; exampleIndex:number}
+  | {drill:'time'; hour:number; minute:number; format:'12'|'24'; reverse:boolean}
+export interface SubjectSelection { subject:QuestionSubject; counterBag:string[] }
 export interface Question {
   id: string
+  subject?: QuestionSubject
   drill: DrillId
   prompt: string
   promptLabel: string
@@ -19,11 +26,12 @@ export interface Question {
   meta?: Record<string, string | number | boolean>
 }
 export interface AnswerResult { correct: boolean; canonical: string; normalizedInput: string; note?: string }
-export interface DrillContext { question?: Question; settings: Settings; recentIds: string[]; counterBag: string[] }
+export interface DrillContext { settings: Settings; recentIds: readonly string[]; counterBag: readonly string[] }
 export interface DrillAdapter {
   id: DrillId
   label: string
-  createQuestion(context: DrillContext): Question
+  selectNext(context: DrillContext): SubjectSelection
+  buildQuestion(subject: QuestionSubject, settings: Settings): Question
   checkAnswer(question: Question, input: string): AnswerResult
 }
 export interface DrillScore { correct: number; incorrect: number }

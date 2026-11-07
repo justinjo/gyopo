@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { initialState } from '../config'
+import type { DrillAdapter, DrillContext } from '../types'
+const createQuestion=(adapter:DrillAdapter,context:DrillContext)=>adapter.buildQuestion(adapter.selectNext(context).subject,context.settings)
 import { adapters, updateQuestion } from './index'
 import type { DrillId, Settings } from '../types'
 const settings:Settings={...initialState.settings,direction:'forward',numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
-const create=(drill:DrillId,s=settings)=>adapters[drill].createQuestion({settings:s,recentIds:[],counterBag:[]})
+const create=(drill:DrillId,s=settings)=>createQuestion(adapters[drill],{settings:s,recentIds:[],counterBag:[]})
 describe('updating a current question',()=>{
   it.each(['numbers','counters','colors','time','days'] as const)('keeps the same %s problem when switching answer style',drill=>{
     const typing={...settings,answerMode:'typing' as const},q=create(drill,typing)

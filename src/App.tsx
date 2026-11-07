@@ -43,9 +43,10 @@ export function App(){
 
   const makeQuestion=useCallback((base:PersistedState,drill=base.session.drill):ActiveSession=>{
     const context={settings:base.settings,recentIds:[...base.session.recentIds],counterBag:[...base.session.counterBag]}
-    const question=adapters[drill].createQuestion(context)
+    const selection=adapters[drill].selectNext(context)
+    const question=adapters[drill].buildQuestion(selection.subject,base.settings)
     const recentIds=[question.id,...context.recentIds].slice(0,12)
-    return {drill,question,input:'',feedback:null,translationVisible:false,recentIds,counterBag:context.counterBag}
+    return {drill,question,input:'',feedback:null,translationVisible:false,recentIds,counterBag:selection.counterBag}
   },[])
   useEffect(()=>{if(ready&&!state.session.question)setState(s=>({...s,session:makeQuestion(s)}))},[ready,state.session.question,makeQuestion])
   useEffect(()=>{if(state.session.question)drillSessions.current[state.session.drill]=state.session},[state.session])
