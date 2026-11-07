@@ -1,18 +1,13 @@
 import type { DirectionalDrillId, DrillAdapter, DrillContext, Question, QuestionSubject, Settings } from '../types'
-import { normalizeAnswer, normalizeTime, sample, shuffle, uniqueChoices } from '../lib/normalize'
+import { sample, shuffle } from '../lib/normalize'
 import { parseIntegerAnswer, toNativeKorean, toSinoKorean } from '../lib/koreanNumbers'
 import { colors } from '../content/colors'
 import { counters } from '../content/counters'
 import { days } from '../content/days'
 import { randomInteger, selectFromBag, selectRandom, subjectKey } from './selection'
+import { buildChoices, checkAnswer as check } from './answers'
 import { digitalTime, digitalTimeAliases, koreanTime, timeAliases } from '../lib/time'
 
-const check: DrillAdapter['checkAnswer'] = (q, input) => {
-  const normalizer = q.meta?.digital ? normalizeTime : normalizeAnswer
-  const value = normalizer(input)
-  const accepted=q.accepted.find(a=>normalizer(a.value)===value)
-  return { correct: !!accepted, canonical: q.canonical, normalizedInput: value, note: accepted?.label }
-}
 const actualDirection = (settings: Settings, drill:DirectionalDrillId) => settings.directions[drill] === 'mixed' ? sample(['forward','reverse'] as const) : settings.directions[drill]
 
 function numberRange(s: Settings, native: boolean): [number, number] {
@@ -26,7 +21,7 @@ function numberRange(s: Settings, native: boolean): [number, number] {
 }
 function nearbyNumbers(n:number,min:number,max:number): number[] {
   const offsets = shuffle([-100,-20,-10,-2,-1,1,2,10,20,100])
-  return offsets.map(x=>n+x).filter(x=>x>=min&&x<=max)
+  return [...offsets.map(x=>n+x),min,min+1,max-1,max].filter(x=>x!==n&&x>=min&&x<=max)
 }
 const numbers: DrillAdapter = {
   id:'numbers',label:'Numbers',checkAnswer:check,
@@ -44,7 +39,7 @@ const numbers: DrillAdapter = {
     const canonical = reverse ? String(n) : word
     const candidates = nearbyNumbers(n,validMin,validMax).map(x => reverse ? String(x) : native ? toNativeKorean(x) : toSinoKorean(x))
     const accepted = !reverse && native && n === 0 ? [{value:'영'},{value:'공'}] : [{value:canonical}]
-    return { subject,subjectKey:subjectKey(subject),id:`number-${native?'native':'sino'}-${n}-${direction}-${Date.now()}`,drill:'numbers',prompt:reverse?word:n.toLocaleString(),promptLabel:reverse?'Write the number':'Write it in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:native?'native':'sino',meta:{value:n,system:native?'native':'sino',reverse} }
+    return { subject,subjectKey:subjectKey(subject),id:`number-${native?'native':'sino'}-${n}-${direction}-${Date.now()}`,drill:'numbers',prompt:reverse?word:n.toLocaleString(),promptLabel:reverse?'Write the number':'Write it in Korean',canonical,accepted,choices:buildChoices({canonical,accepted},candidates),progressKey:native?'native':'sino',meta:{value:n,system:native?'native':'sino',reverse} }
   }
 }
 
@@ -62,7 +57,7 @@ const colorAdapter: DrillAdapter = {
     const canonical=settings.answerMode==='choice'?sample(choiceForms(entry)):forms(entry)[0]!
     const accepted=(reverse?[entry.english,...entry.aliasesEn]:[entry.korean,...entry.aliasesKo]).map(value=>({value}))
     const candidates=colors.filter(c=>c.id!==entry.id).map(c=>sample(choiceForms(c)))
-    return {subject,subjectKey:subjectKey(subject),id:`color-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'colors',prompt:reverse?entry.korean:'',promptLabel:reverse?'Write the color in English':'Write the color in Korean',canonical,accepted,choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{hex:entry.hex,swatch:!reverse,reverse}}
+    return {subject,subjectKey:subjectKey(subject),id:`color-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'colors',prompt:reverse?entry.korean:'',promptLabel:reverse?'Write the color in English':'Write the color in Korean',canonical,accepted,choices:buildChoices({canonical,accepted},candidates),progressKey:entry.id,meta:{hex:entry.hex,swatch:!reverse,reverse}}
   }
 }
 
@@ -106,7 +101,7 @@ const counterAdapter: DrillAdapter = {
     let candidates=eligible.filter(c=>safeIds.has(c.id)&&!equivalentCounters?.has(c.counter)).map(c=>c.counter)
     // A strict level filter can leave fewer than two distinct safe distractors.
     if(new Set(candidates).size<2)candidates=counterDistractors(id).filter(c=>!equivalentCounters?.has(c.counter)).map(c=>c.counter)
-    return {subject,subjectKey:subjectKey(subject),id:`counter-${id}-${Date.now()}`,drill:'counters',prompt:example.sentence,promptLabel:`Fill in the counter · ${entry.level}`,canonical:entry.counter,accepted,choices:uniqueChoices(entry.counter,shuffle(candidates)),translation:example.translation,progressKey:id,meta:{gloss:entry.gloss}}
+    return {subject,subjectKey:subjectKey(subject),id:`counter-${id}-${Date.now()}`,drill:'counters',prompt:example.sentence,promptLabel:`Fill in the counter · ${entry.level}`,canonical:entry.counter,accepted,choices:buildChoices({canonical:entry.counter,accepted},candidates),translation:example.translation,progressKey:id,meta:{gloss:entry.gloss}}
   }
 }
 
@@ -123,7 +118,7 @@ const timeAdapter: DrillAdapter = {
     const canonical=reverse?digital:words
     const accepted=reverse?digitalTimeAliases(hour,minute,format).map(value=>({value})):timeAliases(hour,minute,format).map(value=>({value}))
     const alternatives=[1,2,5,10,15].map(x=>reverse?digitalTime((hour+x)%24,minute,format):koreanTime((hour+x)%24,minute,format))
-    return {subject,subjectKey:subjectKey(subject),id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Korean reading`,canonical,accepted,choices:uniqueChoices(canonical,alternatives),progressKey:format,meta:{digital:reverse,format,hour,minute,reverse}}
+    return {subject,subjectKey:subjectKey(subject),id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Korean reading`,canonical,accepted,choices:buildChoices({canonical,accepted,meta:{digital:reverse}},alternatives),progressKey:format,meta:{digital:reverse,format,hour,minute,reverse}}
   }
 }
 const dayAdapter: DrillAdapter = {
@@ -137,7 +132,8 @@ const dayAdapter: DrillAdapter = {
     const entry=days.find(day=>day.id===subject.entryId)!,reverse=subject.reverse
     const canonical=reverse?entry.english:entry.korean
     const candidates=days.filter(day=>day.id!==entry.id).map(day=>reverse?day.english:day.korean)
-    return {subject,subjectKey:subjectKey(subject),id:`day-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'days',prompt:reverse?entry.korean:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Korean',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{reverse}}
+    const accepted=[{value:canonical}]
+    return {subject,subjectKey:subjectKey(subject),id:`day-${entry.id}-${reverse?'en':'ko'}-${Date.now()}`,drill:'days',prompt:reverse?entry.korean:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Korean',canonical,accepted,choices:buildChoices({canonical,accepted},candidates),progressKey:entry.id,meta:{reverse}}
   }
 }
 function directionLabel(reverse:boolean){return reverse?'digital':'korean'}
@@ -168,7 +164,8 @@ export function updateQuestion(question:Question,settings:Settings,previous:Sett
   const systemChanged=question.drill==='numbers'&&settings.numberSystem!==previous.numberSystem
   const formatChanged=question.drill==='time'&&settings.timeFormat!==previous.timeFormat
   const choicesChanged=question.drill==='colors'&&settings.answerMode!==previous.answerMode
-  if(!directionChanged&&!systemChanged&&!formatChanged&&!choicesChanged)return question
+  const rangeChanged=question.drill==='numbers'&&(settings.numberPreset!==previous.numberPreset||settings.customMin!==previous.customMin||settings.customMax!==previous.customMax)
+  if(!directionChanged&&!systemChanged&&!formatChanged&&!choicesChanged&&!rangeChanged)return question
   // Recover clock values from questions saved before source metadata was added.
   if(question.drill==='time'&&question.meta?.hour===undefined){const match=/^time-(\d+)-(\d+)-/.exec(question.id);if(!match)return question;question={...question,meta:{...question.meta,hour:Number(match[1]),minute:Number(match[2])}}}
   const subject=subjectFromQuestion(question)

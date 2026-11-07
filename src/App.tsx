@@ -1,6 +1,7 @@
 import { Alphabet } from './Alphabet'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { effectiveAnswerMode } from './drills/answers'
 import { adapters, updateQuestion, validateCustomRange } from './drills'
 import { APP_NAME, APP_VERSION, DRILLS, initialState } from './config'
 import { flashcardLessons } from './content/flashcards'
@@ -78,6 +79,7 @@ export function App(){
   async function applyUpdate(){await repository.save(stateRef.current);await updateServiceWorker(true)}
 
   const q=session.question,score=state.progress.byDrill[session.drill],total=score.correct+score.incorrect
+  const answerMode=q?effectiveAnswerMode(state.settings.answerMode,q):state.settings.answerMode
   if(!ready||!q)return <div className="loading" role="status"><img src="/logo.svg" alt=""/><p>Preparing your practice…</p></div>
   return <div className={`app-shell${keyboardOpen?' keyboard-open':''}${view==='flashcards'||view==='alphabet'?' flashcards-open':''}`} onKeyDown={keyDown}>
     <header className="topbar"><h1>{APP_NAME}<span className="wordmark-mark" aria-hidden="true"><svg viewBox="-300 -300 600 600"><path fill="#cd2e3a" d="M-150 259.808A300 300 0 0 0 300 0a225 225 0 0 0-450 0z"/><path fill="#0047a0" d="M-150-259.808a300 300 0 0 0 0 519.616A150 150 0 0 0 0 0z"/><path fill="#ffc224" d="M0 0a150 150 0 0 1 300 0 300 300 0 0 0-450-259.908A150 150 0 0 0 0 0z"/></svg></span></h1><button className="icon-button" onClick={()=>setSettingsOpen(true)} hidden={view==='alphabet'} aria-label="Open settings">⌘</button></header>
@@ -91,10 +93,11 @@ export function App(){
         <div className="prompt-area">{q.meta?.swatch&&<div className="swatch" style={{background:String(q.meta.hex)}} aria-label="Color swatch"/>}<div className={q.drill==='counters'?'sentence-prompt':'main-prompt'}>{q.prompt}</div></div>
         {q.translation&&<button className="translation-toggle" onClick={()=>setState(s=>saveSession(s,{...s.drillSessions[s.activeDrill],translationVisible:!s.drillSessions[s.activeDrill].translationVisible}))}>{session.translationVisible?q.translation:'Reveal English translation'}</button>}
         <div className="answer-area">
-          {state.settings.answerMode==='typing'?<label className="input-wrap"><span>Your answer</span><input ref={inputRef} autoFocus autoComplete="off" autoCapitalize="off" value={session.input} disabled={!!session.feedback} onChange={e=>setState(s=>saveSession(s,{...s.drillSessions[s.activeDrill],input:e.target.value}))} placeholder={q.drill==='time'&&q.meta?.digital?'e.g. 9:05':'Type your answer'}/></label>:
+          {answerMode!==state.settings.answerMode&&<p role="status">Type your answer for this question; three distinct choices aren’t available.</p>}
+          {answerMode==='typing'?<label className="input-wrap"><span>Your answer</span><input ref={inputRef} autoFocus autoComplete="off" autoCapitalize="off" value={session.input} disabled={!!session.feedback} onChange={e=>setState(s=>saveSession(s,{...s.drillSessions[s.activeDrill],input:e.target.value}))} placeholder={q.drill==='time'&&q.meta?.digital?'e.g. 9:05':'Type your answer'}/></label>:
           <div className="choices">{q.choices?.map(choice=><button key={choice} disabled={!!session.feedback} className={session.feedback?(adapters[q.drill].checkAnswer(q,choice).correct?'right':session.input===choice?'wrong':''):''} onClick={()=>{setState(s=>saveSession(s,{...s.drillSessions[s.activeDrill],input:choice}));submit(choice)}}>{choice}</button>)}</div>}
           {session.feedback?<div className={`feedback ${session.feedback.correct?'correct':'incorrect'}`}><div><strong>{session.feedback.correct?'맞아요 · Correct':'Not quite'}</strong>{!session.feedback.correct&&<span>Answer: <b>{q.canonical}</b></span>}{session.feedback.note&&<span>{session.feedback.note}</span>}</div><button className="primary" onClick={next}>Next <kbd>Enter</kbd></button></div>:
-          <div className="question-actions"><button className="skip" onClick={next}>Skip</button>{state.settings.answerMode==='typing'&&<button className="primary check" onClick={()=>submit()} disabled={!session.input.trim()}>Check <kbd>Enter</kbd></button>}</div>}
+          <div className="question-actions"><button className="skip" onClick={next}>Skip</button>{answerMode==='typing'&&<button className="primary check" onClick={()=>submit()} disabled={!session.input.trim()}>Check <kbd>Enter</kbd></button>}</div>}
         </div>
       </section>
     </main>

@@ -21,6 +21,3 @@ export function shuffle<T>(items: readonly T[]): T[] {
   for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j]!, copy[i]!] }
   return copy
 }
-export function uniqueChoices(correct: string, candidates: string[], size = 3): string[] {
-  return shuffle([correct, ...shuffle(candidates.filter(x => x !== correct))].filter((x, i, a) => a.indexOf(x) === i).slice(0, size))
-}

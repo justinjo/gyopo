@@ -91,3 +91,36 @@ describe('resuming section sessions',()=>{
     expect(screen.getByRole('region',{name:'Global settings'})).toHaveTextContent('Answer style')
   })
 })
+
+
+describe('choice fallback',()=>{
+  it('uses typing for a tiny range and restores choices when the range grows',async()=>{
+    saved.settings.answerMode='choice'
+    render(<App/>)
+    await screen.findByRole('textbox',{name:'Your answer'})
+    expect(screen.getByRole('status')).toHaveTextContent('three distinct choices')
+    expect(saved.settings.answerMode).toBe('choice')
+    fireEvent.click(screen.getByRole('button',{name:'Open settings'}))
+    const bounds=screen.getAllByRole('spinbutton')
+    fireEvent.change(bounds[1],{target:{value:'44'}})
+    fireEvent.click(screen.getByRole('button',{name:'Close settings'}))
+    expect(screen.queryByRole('textbox',{name:'Your answer'})).not.toBeInTheDocument()
+    expect(document.querySelectorAll('.choices button')).toHaveLength(3)
+    expect(saved.drillSessions.numbers.question?.meta?.value).toBe(42)
+    expect(saved.settings.answerMode).toBe('choice')
+  })
+  it('makes an incomplete saved choice question answerable after reload',async()=>{
+    saved.settings.answerMode='choice'
+    saved.activeDrill='days'
+    saved.view='days'
+    const question=adapters.days.buildQuestion({drill:'days',entryId:'monday',reverse:false},saved.settings)
+    saved.drillSessions.days.question={...question,choices:[question.canonical]}
+    render(<App/>)
+    await screen.findByRole('textbox',{name:'Your answer'})
+    fireEvent.change(input(),{target:{value:question.canonical}})
+    fireEvent.click(screen.getByRole('button',{name:/Check/}))
+    expect(screen.getByText('맞아요 · Correct')).toBeInTheDocument()
+    expect(saved.progress.byDrill.days.correct).toBe(1)
+    expect(saved.settings.answerMode).toBe('choice')
+  })
+})

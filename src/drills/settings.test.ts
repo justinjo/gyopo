@@ -13,11 +13,14 @@ describe('updating a current question',()=>{
     expect(updated.id).toBe(q.id)
     expect(updated.prompt).toBe(q.prompt)
     expect(updated.progressKey).toBe(q.progressKey)
-    expect(updated.choices?.some(choice=>adapters[drill].checkAnswer(updated,choice).correct)).toBe(true)
+    expect(adapters[drill].checkAnswer(updated,updated.canonical).correct).toBe(true)
   })
   it('replaces a number only when it falls outside the new range',()=>{
     const q=create('numbers')
-    expect(updateQuestion(q,{...settings,customMin:0,customMax:50},settings)).toBe(q)
+    const updated=updateQuestion(q,{...settings,customMin:0,customMax:50},settings)!
+    expect(updated.id).toBe(q.id)
+    expect(updated.subjectKey).toBe(q.subjectKey)
+    expect(updated.choices).toHaveLength(3)
     expect(updateQuestion(q,{...settings,customMin:0,customMax:10},settings)).toBeNull()
   })
   it('changes number system and direction while keeping the number',()=>{
@@ -60,7 +63,7 @@ describe('number range presets',()=>{
     const previous={...settings,numberPreset:'custom' as const,customMin:1_000_000,customMax:1_000_000}
     const q=create('numbers',previous)
     expect(updateQuestion(q,{...settings,numberPreset:'large'},previous)).toBeNull()
-    expect(updateQuestion(q,{...settings,numberPreset:'extra-large'},previous)).toBe(q)
+    expect(updateQuestion(q,{...settings,numberPreset:'extra-large'},previous)?.subjectKey).toBe(q.subjectKey)
   })
 })
 
