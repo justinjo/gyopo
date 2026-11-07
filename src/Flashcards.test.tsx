@@ -1,7 +1,7 @@
 import { fireEvent,render,screen,cleanup } from '@testing-library/react'
 import { afterEach,describe,expect,it,vi } from 'vitest'
 vi.mock('virtual:pwa-register/react',()=>({useRegisterSW:vi.fn()}))
-import { Flashcards } from './App'
+import { Flashcards } from './Flashcards'
 import { useState } from 'react'
 import { createFlashcardSession, type FlashcardSession } from './content/flashcardSession'
 function Study({lessonIds,direction}:{lessonIds:string[];direction:FlashcardSession['direction']}){const [session,setSession]=useState(()=>createFlashcardSession(lessonIds,direction));return <Flashcards session={session} onChange={setSession}/>}

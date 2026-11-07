@@ -15,7 +15,7 @@ describe('validated multiple choice',()=>{
     expect(buildChoices(spec,['grey','gray','blue'])).toEqual([])
   })
   it('uses digital time normalization when filtering equivalent answers',()=>{
-    const spec={canonical:'3:05 PM',accepted:[{value:'3:05 PM'},{value:'15:05'}],meta:{digital:true}}
+    const spec={canonical:'3:05 PM',accepted:[{value:'3:05 PM'},{value:'15:05'}],normalization:'time' as const}
     const choices=buildChoices(spec,['15:5','03:05 pm','4:05 PM','16:05','5:05 PM'])
     expect(new Set(choices.map(normalizeTime))).toEqual(new Set(['15:05','16:05','17:05']))
     expect(choices.filter(choice=>checkAnswer(spec,choice).correct)).toHaveLength(1)

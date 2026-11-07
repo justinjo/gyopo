@@ -8,7 +8,7 @@ export function createDrillSession(drill:DrillId):ActiveSession {
   return {drill,question:null,input:'',feedback:null,translationVisible:false,recentSubjectKeys:[],counterBag:[]}
 }
 export const initialState: PersistedState = {
-  version: 4,
+  version: 5,
   view: 'numbers',
   alphabetSession: createAlphabetSession(),
   settings: { answerMode: 'choice', directions: {numbers:'mixed',colors:'mixed',time:'mixed',days:'mixed'}, numberSystem: 'mixed', numberPreset: 'medium', customMin: 0, customMax: 9999, counterLevel: 'all', timeFormat: 'mixed' },

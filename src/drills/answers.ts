@@ -1,8 +1,8 @@
 import type { AnswerMode, AnswerResult, Question } from '../types'
 import { normalizeAnswer, normalizeTime, shuffle } from '../lib/normalize'
 
-type AnswerSpec = Pick<Question, 'canonical' | 'accepted' | 'meta'>
-const normalizerFor = (question:AnswerSpec) => question.meta?.digital ? normalizeTime : normalizeAnswer
+type AnswerSpec = Pick<Question, 'canonical' | 'accepted'> & {normalization?:Question['normalization']}
+const normalizerFor = (question:AnswerSpec) => question.normalization==='time' ? normalizeTime : normalizeAnswer
 
 export function checkAnswer(question:AnswerSpec,input:string):AnswerResult {
   const normalize=normalizerFor(question),normalizedInput=normalize(input)

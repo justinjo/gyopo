@@ -8,26 +8,50 @@ export type Direction = 'forward' | 'reverse' | 'mixed'
 export type LevelFilter = 'all' | 'beginner' | 'intermediate'
 
 export interface AcceptedAnswer { value: string; label?: string }
-export type QuestionSubject =
-  | {drill:'numbers'; value:number; system:'native'|'sino'; reverse:boolean}
-  | {drill:'colors'|'days'; entryId:string; reverse:boolean}
-  | {drill:'counters'; entryId:string; exampleIndex:number}
-  | {drill:'time'; hour:number; minute:number; format:'12'|'24'; reverse:boolean}
+export interface NumberSubject {drill:'numbers'; value:number; system:'native'|'sino'; reverse:boolean; zeroWord?:'영'|'공'}
+export interface ColorSubject {drill:'colors'; entryId:string; reverse:boolean}
+export interface DaySubject {drill:'days'; entryId:string; reverse:boolean}
+export interface CounterSubject {drill:'counters'; entryId:string; exampleIndex:number}
+export interface TimeSubject {drill:'time'; hour:number; minute:number; format:'12'|'24'; reverse:boolean}
+export type QuestionSubject = NumberSubject | ColorSubject | DaySubject | CounterSubject | TimeSubject
 export interface SubjectSelection { subject:QuestionSubject; counterBag:string[] }
-export interface Question {
-  id: string
-  subjectKey: string
-  subject?: QuestionSubject
-  drill: DrillId
-  prompt: string
-  promptLabel: string
-  canonical: string
-  accepted: AcceptedAnswer[]
-  choices?: string[]
-  translation?: string
-  progressKey: string
-  meta?: Record<string, string | number | boolean>
+interface QuestionBase {
+  id:string
+  subjectKey:string
+  prompt:string
+  promptLabel:string
+  canonical:string
+  accepted:AcceptedAnswer[]
+  choices?:string[]
+  translation?:string
+  normalization:'text'|'time'
 }
+export type NumberQuestion = QuestionBase & {
+  drill:'numbers'; subject:NumberSubject
+  meta:{value:number; system:'native'|'sino'; reverse:boolean}
+  progressGroup:{kind:'number-system'; value:'native'|'sino'}
+}
+export type ColorQuestion = QuestionBase & {
+  drill:'colors'; subject:ColorSubject
+  meta:{hex:string; swatch:boolean; reverse:boolean}
+  progressGroup:{kind:'drill'; value:'colors'}
+}
+export type CounterQuestion = QuestionBase & {
+  drill:'counters'; subject:CounterSubject
+  meta:{gloss:string}
+  progressGroup:{kind:'drill'; value:'counters'}
+}
+export type TimeQuestion = QuestionBase & {
+  drill:'time'; subject:TimeSubject
+  meta:{digital:boolean; format:'12'|'24'; hour:number; minute:number; reverse:boolean}
+  progressGroup:{kind:'time-format'; value:'12'|'24'}
+}
+export type DayQuestion = QuestionBase & {
+  drill:'days'; subject:DaySubject
+  meta:{reverse:boolean}
+  progressGroup:{kind:'drill'; value:'days'}
+}
+export type Question = NumberQuestion | ColorQuestion | CounterQuestion | TimeQuestion | DayQuestion
 export interface AnswerResult { correct: boolean; canonical: string; normalizedInput: string; note?: string }
 export interface DrillContext { settings: Settings; recentSubjectKeys: readonly string[]; counterBag: readonly string[] }
 export interface DrillAdapter {
@@ -65,7 +89,7 @@ export interface ActiveSession {
   counterBag: string[]
 }
 export interface PersistedState {
-  version: 4
+  version: 5
   view: SectionId
   alphabetSession: AlphabetSession
   settings: Settings

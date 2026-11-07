@@ -11,13 +11,14 @@ vi.mock('virtual:pwa-register/react',()=>({useRegisterSW:()=>({needRefresh:[fals
 vi.mock('./storage/repository',()=>({repository:{load:vi.fn(),save:vi.fn()}}))
 let saved:PersistedState
 beforeEach(()=>{
+  vi.spyOn(HTMLMediaElement.prototype,'pause').mockImplementation(()=>{})
   saved=structuredClone(initialState)
   saved.settings={...saved.settings,answerMode:'typing',directions:{numbers:'forward',colors:'forward',time:'forward',days:'forward'},numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
   vi.mocked(repository.load).mockImplementation(async()=>structuredClone(saved))
   vi.mocked(repository.save).mockImplementation(async state=>{saved=structuredClone(state)})
   vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()}))
 })
-afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.clearAllMocks()})
+afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.clearAllMocks();vi.restoreAllMocks()})
 const tab=(name:string)=>within(screen.getByRole('navigation')).getByRole('button',{name:new RegExp(name)})
 const input=()=>screen.getByRole('textbox',{name:'Your answer'})
 
@@ -106,7 +107,7 @@ describe('choice fallback',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Close settings'}))
     expect(screen.queryByRole('textbox',{name:'Your answer'})).not.toBeInTheDocument()
     expect(document.querySelectorAll('.choices button')).toHaveLength(3)
-    expect(saved.drillSessions.numbers.question?.meta?.value).toBe(42)
+    expect(saved.drillSessions.numbers.question?.drill==='numbers'?saved.drillSessions.numbers.question.subject.value:undefined).toBe(42)
     expect(saved.settings.answerMode).toBe('choice')
   })
   it('makes an incomplete saved choice question answerable after reload',async()=>{

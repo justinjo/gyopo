@@ -12,7 +12,7 @@ describe('updating a current question',()=>{
     const updated=updateQuestion(q,settings,typing)!
     expect(updated.id).toBe(q.id)
     expect(updated.prompt).toBe(q.prompt)
-    expect(updated.progressKey).toBe(q.progressKey)
+    expect(updated.subjectKey).toBe(q.subjectKey)
     expect(adapters[drill].checkAnswer(updated,updated.canonical).correct).toBe(true)
   })
   it('replaces a number only when it falls outside the new range',()=>{
@@ -25,8 +25,8 @@ describe('updating a current question',()=>{
   })
   it('changes number system and direction while keeping the number',()=>{
     const q=create('numbers'),updated=updateQuestion(q,{...settings,numberSystem:'native',directions:{...settings.directions,numbers:'reverse'}},settings)!
-    expect(updated.meta?.value).toBe(42)
-    expect(updated.meta?.system).toBe('native')
+    expect(updated.subject).toMatchObject({drill:'numbers',value:42})
+    expect(updated.subject).toMatchObject({system:'native'})
     expect(updated.canonical).toBe('42')
     expect(updated.id).toBe(q.id)
   })
@@ -39,10 +39,7 @@ describe('updating a current question',()=>{
     const previous={...settings,timeFormat:'12' as const},q=create('time',previous)
     const updated=updateQuestion(q,{...previous,timeFormat:'24',directions:{...previous.directions,time:'reverse'}},previous)!
     expect(updated.id).toBe(q.id)
-    expect(updated.meta?.hour).toBe(q.meta?.hour)
-    expect(updated.meta?.minute).toBe(q.meta?.minute)
-    expect(updated.meta?.format).toBe('24')
-    expect(updated.meta?.digital).toBe(true)
+    expect(updated.subject).toMatchObject({...q.subject,format:'24',reverse:true})
   })
 })
 
@@ -54,9 +51,9 @@ describe('number range presets',()=>{
     try {
       const preset={...settings,numberPreset}
       random.mockReturnValue(0)
-      expect(create('numbers',preset).meta?.value).toBe(min)
+      expect(create('numbers',preset).subject).toMatchObject({value:min})
       random.mockReturnValue(1-Number.EPSILON)
-      expect(create('numbers',preset).meta?.value).toBe(max)
+      expect(create('numbers',preset).subject).toMatchObject({value:max})
     } finally {random.mockRestore()}
   })
   it('replaces an extra large question when switching to large',()=>{

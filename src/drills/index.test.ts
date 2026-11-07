@@ -9,7 +9,7 @@ describe('drill adapters',()=>{
   it('accepts aliases and creates unique choices',()=>{const context={settings:initialState.settings,recentSubjectKeys:[],counterBag:[]};for(const adapter of Object.values(adapters)){const q=createQuestion(adapter,context);expect(q.choices).toHaveLength(3);expect(new Set(q.choices).size).toBe(3);expect(adapter.checkAnswer(q,q.canonical).correct).toBe(true)}})
   it('accepts both Korean zero readings in native-number drills',()=>{const context={settings:{...initialState.settings,numberSystem:'native' as const,numberPreset:'custom' as const,customMin:0,customMax:0,directions:{...initialState.settings.directions,numbers:'forward' as const,colors:'forward' as const}},recentSubjectKeys:[],counterBag:[]};const q=createQuestion(adapters.numbers,context);expect(q.prompt).toBe('0');expect(adapters.numbers.checkAnswer(q,'영').correct).toBe(true);expect(adapters.numbers.checkAnswer(q,'공').correct).toBe(true)})
   it('cycles full Korean color aliases into choices while keeping shorthand typing-only',()=>{const random=vi.spyOn(Math,'random').mockReturnValue(.85);const base={...initialState.settings,directions:{...initialState.settings.directions,numbers:'forward' as const,colors:'forward' as const}};const choice=createQuestion(adapters.colors,{settings:{...base,answerMode:'choice' as const},recentSubjectKeys:[],counterBag:[]});expect(choice.canonical).toBe('하얀색');expect(choice.choices).toContain('하얀색');expect(choice.choices?.every(value=>value.endsWith('색'))).toBe(true);expect(adapters.colors.checkAnswer(choice,'하양').correct).toBe(true);const typing=createQuestion(adapters.colors,{settings:{...base,answerMode:'typing' as const},recentSubjectKeys:[],counterBag:[]});expect(typing.canonical).toBe('흰색');random.mockRestore()})
-  it('exhausts the counter bag before repeating',()=>{const context={settings:{...initialState.settings,counterLevel:'beginner' as const},recentSubjectKeys:[],counterBag:[] as string[]};const ids=new Set<string>();for(let i=0;i<16;i++){const selected=adapters.counters.selectNext(context);context.counterBag=selected.counterBag;ids.add(adapters.counters.buildQuestion(selected.subject,context.settings).progressKey)};expect(ids.size).toBe(16);expect(context.counterBag).toHaveLength(0)})
+  it('exhausts the counter bag before repeating',()=>{const context={settings:{...initialState.settings,counterLevel:'beginner' as const},recentSubjectKeys:[],counterBag:[] as string[]};const ids=new Set<string>();for(let i=0;i<16;i++){const selected=adapters.counters.selectNext(context);context.counterBag=selected.counterBag;ids.add(adapters.counters.buildQuestion(selected.subject,context.settings).subjectKey)};expect(ids.size).toBe(16);expect(context.counterBag).toHaveLength(0)})
   it.each([['people','명','분'],['people-honor','분','명']])('accepts both people counters for %s with guidance',(id,canonical,alternate)=>{const context={settings:initialState.settings,recentSubjectKeys:[],counterBag:[id]};const q=createQuestion(adapters.counters,context);expect(q.canonical).toBe(canonical);const result=adapters.counters.checkAnswer(q,alternate);expect(result.correct).toBe(true);expect(result.note).toContain('명');expect(result.note).toContain('분');expect(q.choices).not.toContain(alternate)})
   it('does not confuse the minutes counter with a people counter',()=>{const context={settings:initialState.settings,recentSubjectKeys:[],counterBag:['minutes']};const q=createQuestion(adapters.counters,context);expect(q.canonical).toBe('분');expect(adapters.counters.checkAnswer(q,'명').correct).toBe(false)})
   it('accepts bottles for the water-drinking prompt with a unit note',()=>{const context={settings:initialState.settings,recentSubjectKeys:[],counterBag:['mouthfuls']};const q=createQuestion(adapters.counters,context);const result=adapters.counters.checkAnswer(q,'병');expect(result.correct).toBe(true);expect(result.note).toContain('모금');expect(result.note).toContain('병');expect(q.choices).not.toContain('병')})
@@ -41,11 +41,11 @@ describe('recent weekday and color questions',()=>{
       for(let i=0;i<12;i++){
         const settings={...initialState.settings,directions:{...initialState.settings.directions,[drill]:i%2?'reverse' as const:'forward' as const}}
         const question=createQuestion(adapters[drill],{settings,recentSubjectKeys,counterBag:[]})
-        expect(keys.slice(-2)).not.toContain(question.progressKey)
-        keys.push(question.progressKey)
+        expect(keys.slice(-2)).not.toContain(question.subjectKey)
+        keys.push(question.subjectKey)
         recentSubjectKeys=[question.subjectKey,...recentSubjectKeys].slice(0,12)
         const refreshed=adapters[drill].buildQuestion(question.subject!,settings)
-        expect(refreshed.progressKey).toBe(question.progressKey)
+        expect(refreshed.subjectKey).toBe(question.subjectKey)
       }
       expect(keys[3]).toBe(keys[0])
     } finally { random.mockRestore() }
@@ -62,7 +62,7 @@ describe('selection and rendering',()=>{
     expect(selected.counterBag).toEqual(['animals'])
     expect(context.counterBag).toEqual(['people','animals'])
     const question=adapters.counters.buildQuestion(selected.subject,context.settings)
-    expect(question.progressKey).toBe('people')
+    expect(question.subjectKey).toBe('counters:people')
     expect(selected.counterBag).toEqual(['animals'])
   })
   it.each(['numbers','counters','colors','time','days'] as const)('rebuilds the selected %s subject without selecting again',drill=>{
@@ -73,7 +73,7 @@ describe('selection and rendering',()=>{
     expect(rebuilt.subject).toEqual(first.subject)
     expect(rebuilt.prompt).toBe(first.prompt)
     expect(rebuilt.translation).toBe(first.translation)
-    expect(rebuilt.progressKey).toBe(first.progressKey)
+    expect(rebuilt.subjectKey).toBe(first.subjectKey)
   })
 })
 

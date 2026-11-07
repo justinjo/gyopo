@@ -1,6 +1,7 @@
+import { restoreQuestion } from './questions'
 import { restoreFlashcardSession } from '../content/flashcardSession'
 import { restoreAlphabetSession } from '../content/alphabetSession'
-import { restoreRecentSubjectKeys, subjectKey } from '../drills/selection'
+import { restoreRecentSubjectKeys } from '../drills/selection'
 import { createDrillSession, DRILLS, initialState } from '../config'
 import type { ActiveSession, Direction, DrillId, PersistedState, Settings } from '../types'
 
@@ -8,13 +9,14 @@ const DB='gyopo-progress', STORE='state', KEY='main', DB_VERSION=2
 const cloneInitial=()=>structuredClone(initialState)
 
 function isDrill(value:unknown):value is DrillId {return DRILLS.includes(value as DrillId)}
-function restoreDrillSession(raw:unknown,drill:DrillId):ActiveSession {
+function restoreDrillSession(raw:unknown,drill:DrillId,settings:Settings):ActiveSession {
   const fresh=createDrillSession(drill)
   if(!raw||typeof raw!=='object')return fresh
   const saved=raw as Partial<ActiveSession>&{recentIds?:unknown}
-  const question=saved.question?.drill===drill?saved.question:null
-  const restoredQuestion=question?{...question,subjectKey:question.subjectKey??(question.subject?subjectKey(question.subject):restoreRecentSubjectKeys([question.id])[0]??'')}:null
-  return {...fresh,question:restoredQuestion,input:typeof saved.input==='string'?saved.input:'',feedback:restoredQuestion?saved.feedback??null:null,translationVisible:saved.translationVisible===true,recentSubjectKeys:restoreRecentSubjectKeys(saved.recentSubjectKeys??saved.recentIds),counterBag:Array.isArray(saved.counterBag)?saved.counterBag.filter(id=>typeof id==='string'):[]}
+  const restoredQuestion=restoreQuestion(saved.question,drill,settings)
+  const feedback=saved.feedback
+  const restoredFeedback=restoredQuestion&&feedback&&typeof feedback.correct==='boolean'&&typeof feedback.canonical==='string'&&typeof feedback.normalizedInput==='string'&&(feedback.note===undefined||typeof feedback.note==='string')?feedback:null
+  return {...fresh,question:restoredQuestion,input:typeof saved.input==='string'?saved.input:'',feedback:restoredFeedback,translationVisible:saved.translationVisible===true,recentSubjectKeys:restoreRecentSubjectKeys(saved.recentSubjectKeys??saved.recentIds),counterBag:Array.isArray(saved.counterBag)?saved.counterBag.filter(id=>typeof id==='string'):[]}
 }
 function restoreSettings(raw:unknown):Settings {
   const fresh=initialState.settings
@@ -34,15 +36,16 @@ export function migrate(raw: unknown): PersistedState {
   const old=raw as Partial<Omit<PersistedState,'version'>>&{version?:number;session?:Partial<ActiveSession>}
   const fresh=cloneInitial()
   const activeDrill=isDrill(old.activeDrill)?old.activeDrill:isDrill(old.session?.drill)?old.session.drill:fresh.activeDrill
+  const settings=restoreSettings(old.settings)
   const drillSessions={...fresh.drillSessions}
-  for(const drill of DRILLS)drillSessions[drill]=restoreDrillSession(old.drillSessions?.[drill]??(old.session?.drill===drill?old.session:undefined),drill)
+  for(const drill of DRILLS)drillSessions[drill]=restoreDrillSession(old.drillSessions?.[drill]??(old.session?.drill===drill?old.session:undefined),drill,settings)
   return {
-    version:4,
+    version:5,
     view:[...DRILLS,'flashcards','alphabet'].includes(old.view??'')?old.view!:activeDrill,
     activeDrill,drillSessions,
     alphabetSession:restoreAlphabetSession(old.alphabetSession),
     flashcardSession:restoreFlashcardSession(old.flashcardSession),
-    settings:restoreSettings(old.settings),
+    settings,
     progress:{...fresh.progress,...old.progress,lifetime:{...fresh.progress.lifetime,...old.progress?.lifetime},byDrill:{...fresh.progress.byDrill,...old.progress?.byDrill},daily:old.progress?.daily??[],counterMistakes:old.progress?.counterMistakes??{}},
   }
 }
