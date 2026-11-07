@@ -7,7 +7,7 @@ import { flashcardLessons } from './content/flashcards'
 import { createFlashcardSession, flashcardDeck, type FlashcardSession } from './content/flashcardSession'
 import { shuffle } from './lib/normalize'
 import { repository } from './storage/repository'
-import type { ActiveSession, DrillId, PersistedState, SectionId, Settings } from './types'
+import type { ActiveSession, DrillId, PersistedState, SectionId, Settings, Direction } from './types'
 
 const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time',days:'Days'}
 const icons:Record<DrillId,string>={numbers:'일',counters:'개',colors:'●',time:'시',days:'월'}
@@ -129,7 +129,7 @@ function SettingsPanel({view,settings,flashcardLessonIds,setFlashcardLessonIds,f
       {view==='numbers'&&<SettingGroup label="Number system"><Segment value={settings.numberSystem} options={[['mixed','Mixed'],['sino','Sino'],['native','Native']]} onChange={numberSystem=>change({numberSystem:numberSystem as Settings['numberSystem']})}/><select value={settings.numberPreset} onChange={e=>change({numberPreset:e.target.value as Settings['numberPreset']})}><option value="small">Small · 0–99</option><option value="medium">Medium · 0–9,999</option><option value="large">Large · 0–999,999</option><option value="extra-large">Extra large · 1,000,000–999,999,999</option><option value="custom">Custom range</option></select>{settings.numberPreset==='custom'&&<><div className="range"><input type="number" value={settings.customMin} onChange={e=>change({customMin:Number(e.target.value)})}/><span>to</span><input type="number" value={settings.customMax} onChange={e=>change({customMax:Number(e.target.value)})}/></div>{rangeError&&<p className="error">{rangeError}</p>}</>}</SettingGroup>}
       {view==='counters'&&<SettingGroup label="Counter level"><Segment value={settings.counterLevel} options={[['all','All'],['beginner','A1–A2'],['intermediate','B1–B2']]} onChange={counterLevel=>change({counterLevel:counterLevel as Settings['counterLevel']})}/></SettingGroup>}
       {view==='time'&&<SettingGroup label="Time format"><Segment value={settings.timeFormat} options={[['mixed','Mixed'],['12','12 hour'],['24','24 hour']]} onChange={timeFormat=>change({timeFormat:timeFormat as Settings['timeFormat']})}/></SettingGroup>}
-      {view!=='counters'&&<SettingGroup label="Direction"><Segment value={settings.direction} options={[['mixed','Mixed'],['forward','To Korean'],['reverse','From Korean']]} onChange={direction=>change({direction:direction as Settings['direction']})}/></SettingGroup>}
+      {view!=='counters'&&<SettingGroup label="Direction"><Segment value={settings.directions[view]} options={[['mixed','Mixed'],['forward','To Korean'],['reverse','From Korean']]} onChange={direction=>change({directions:{...settings.directions,[view]:direction as Direction}})}/></SettingGroup>}
     </>}
     {view!=='flashcards'&&<section className="global-settings" aria-label="Global settings"><h3>Global settings</h3>
       <SettingGroup label="Answer style"><Segment value={settings.answerMode} options={[['typing','Typing'],['choice','3 choices']]} onChange={answerMode=>change({answerMode:answerMode as Settings['answerMode']})}/></SettingGroup>

@@ -1,6 +1,7 @@
 import type { AlphabetSession } from './content/alphabetSession'
 import type { FlashcardSession } from './content/flashcardSession'
 export type DrillId = 'numbers' | 'counters' | 'colors' | 'time' | 'days'
+export type DirectionalDrillId = Exclude<DrillId, 'counters'>
 export type SectionId = DrillId | 'flashcards' | 'alphabet'
 export type AnswerMode = 'typing' | 'choice'
 export type Direction = 'forward' | 'reverse' | 'mixed'
@@ -46,7 +47,7 @@ export interface ProgressSnapshot {
 }
 export interface Settings {
   answerMode: AnswerMode
-  direction: Direction
+  directions: Record<DirectionalDrillId, Direction>
   numberSystem: 'sino' | 'native' | 'mixed'
   numberPreset: 'small' | 'medium' | 'large' | 'extra-large' | 'custom'
   customMin: number
@@ -64,7 +65,7 @@ export interface ActiveSession {
   counterBag: string[]
 }
 export interface PersistedState {
-  version: 3
+  version: 4
   view: SectionId
   alphabetSession: AlphabetSession
   settings: Settings

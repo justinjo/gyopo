@@ -5,7 +5,7 @@ import { createFlashcardSession, flashcardDeck } from '../content/flashcardSessi
 import { adapters } from '../drills'
 import { migrate,repository } from './repository'
 describe('persistence',()=>{
-  it('migrates partial old state without losing scores',()=>{const migrated=migrate({version:1,progress:{lifetime:{correct:12,incorrect:3}}});expect(migrated.version).toBe(3);expect(migrated.progress.lifetime.correct).toBe(12);expect(migrated.settings.answerMode).toBe('choice')})
+  it('migrates partial old state without losing scores',()=>{const migrated=migrate({version:1,progress:{lifetime:{correct:12,incorrect:3}}});expect(migrated.version).toBe(4);expect(migrated.progress.lifetime.correct).toBe(12);expect(migrated.settings.answerMode).toBe('choice')})
   it('round trips IndexedDB state',async()=>{const state=structuredClone(initialState);state.progress.lifetime.correct=7;await repository.save(state);expect((await repository.load()).progress.lifetime.correct).toBe(7)})
 })
 
@@ -109,5 +109,23 @@ describe('per-section sessions',()=>{
     expect(restored.index).toBe(0)
     expect(restored.revealed).toBe(false)
     expect(migrate({flashcardSession:{lessonIds:['missing'],order:[]}}).flashcardSession.lessonIds).toEqual(['house-family'])
+  })
+})
+
+
+describe('per-drill direction settings',()=>{
+  it('migrates an old global direction to every directional drill without retaining the global field',()=>{
+    const restored=migrate({version:3,settings:{direction:'reverse',answerMode:'typing'}})
+    expect(restored.settings.directions).toEqual({numbers:'reverse',colors:'reverse',time:'reverse',days:'reverse'})
+    expect(restored.settings).not.toHaveProperty('direction')
+    expect(restored.settings.answerMode).toBe('typing')
+  })
+  it('round trips independent directions and repairs invalid or partial direction maps',async()=>{
+    const state=structuredClone(initialState)
+    state.settings.directions={numbers:'forward',colors:'mixed',time:'reverse',days:'forward'}
+    await repository.save(state)
+    expect((await repository.load()).settings.directions).toEqual(state.settings.directions)
+    expect(migrate({settings:{direction:'reverse',directions:{numbers:'forward',colors:'invalid'}}}).settings.directions).toEqual({numbers:'forward',colors:'reverse',time:'reverse',days:'reverse'})
+    expect(migrate({settings:{direction:'invalid'}}).settings.directions).toEqual(initialState.settings.directions)
   })
 })

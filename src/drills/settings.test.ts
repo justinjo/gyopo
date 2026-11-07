@@ -4,7 +4,7 @@ import type { DrillAdapter, DrillContext } from '../types'
 const createQuestion=(adapter:DrillAdapter,context:DrillContext)=>adapter.buildQuestion(adapter.selectNext(context).subject,context.settings)
 import { adapters, updateQuestion } from './index'
 import type { DrillId, Settings } from '../types'
-const settings:Settings={...initialState.settings,direction:'forward',numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
+const settings:Settings={...initialState.settings,directions:{numbers:'forward',colors:'forward',time:'forward',days:'forward'},numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
 const create=(drill:DrillId,s=settings)=>createQuestion(adapters[drill],{settings:s,recentSubjectKeys:[],counterBag:[]})
 describe('updating a current question',()=>{
   it.each(['numbers','counters','colors','time','days'] as const)('keeps the same %s problem when switching answer style',drill=>{
@@ -21,7 +21,7 @@ describe('updating a current question',()=>{
     expect(updateQuestion(q,{...settings,customMin:0,customMax:10},settings)).toBeNull()
   })
   it('changes number system and direction while keeping the number',()=>{
-    const q=create('numbers'),updated=updateQuestion(q,{...settings,numberSystem:'native',direction:'reverse'},settings)!
+    const q=create('numbers'),updated=updateQuestion(q,{...settings,numberSystem:'native',directions:{...settings.directions,numbers:'reverse'}},settings)!
     expect(updated.meta?.value).toBe(42)
     expect(updated.meta?.system).toBe('native')
     expect(updated.canonical).toBe('42')
@@ -34,7 +34,7 @@ describe('updating a current question',()=>{
   })
   it('keeps the clock values when changing time format and direction',()=>{
     const previous={...settings,timeFormat:'12' as const},q=create('time',previous)
-    const updated=updateQuestion(q,{...previous,timeFormat:'24',direction:'reverse'},previous)!
+    const updated=updateQuestion(q,{...previous,timeFormat:'24',directions:{...previous.directions,time:'reverse'}},previous)!
     expect(updated.id).toBe(q.id)
     expect(updated.meta?.hour).toBe(q.meta?.hour)
     expect(updated.meta?.minute).toBe(q.meta?.minute)

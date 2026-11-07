@@ -12,7 +12,7 @@ vi.mock('./storage/repository',()=>({repository:{load:vi.fn(),save:vi.fn()}}))
 let saved:PersistedState
 beforeEach(()=>{
   saved=structuredClone(initialState)
-  saved.settings={...saved.settings,answerMode:'typing',direction:'forward',numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
+  saved.settings={...saved.settings,answerMode:'typing',directions:{numbers:'forward',colors:'forward',time:'forward',days:'forward'},numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
   vi.mocked(repository.load).mockImplementation(async()=>structuredClone(saved))
   vi.mocked(repository.save).mockImplementation(async state=>{saved=structuredClone(state)})
   vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()}))
@@ -64,17 +64,30 @@ describe('resuming section sessions',()=>{
     expect(saved.flashcardSession.lessonIds).toEqual(['requests-obligations'])
     expect(saved.flashcardSession.index).toBe(3)
   })
-  it('updates an inactive drill when a relevant setting changes and persists its subject',async()=>{
+  it('keeps weekday direction local while preserving other questions across reload',async()=>{
     saved.activeDrill='days'
     saved.view='days'
     saved.drillSessions.numbers.question=adapters.numbers.buildQuestion({drill:'numbers',value:42,system:'sino',reverse:false},saved.settings)
+    const numberQuestion=structuredClone(saved.drillSessions.numbers.question)
     render(<App/>)
     await screen.findByRole('textbox',{name:'Your answer'})
+    const daySubject=saved.drillSessions.days.question?.subjectKey
     fireEvent.click(screen.getByRole('button',{name:'Open settings'}))
     fireEvent.click(screen.getByRole('button',{name:'From Korean'}))
     fireEvent.click(screen.getByRole('button',{name:'Close settings'}))
     fireEvent.click(tab('Numbers'))
-    expect(screen.getByText('사십이')).toBeInTheDocument()
-    expect(saved.drillSessions.numbers.question?.subject).toMatchObject({drill:'numbers',value:42,reverse:true})
+    expect(saved.drillSessions.numbers.question).toEqual(numberQuestion)
+    expect(saved.settings.directions).toEqual({numbers:'forward',colors:'forward',time:'forward',days:'reverse'})
+    expect(saved.drillSessions.days.question?.subjectKey).toBe(daySubject)
+    expect(saved.drillSessions.days.question?.subject).toMatchObject({drill:'days',reverse:true})
+    cleanup()
+    render(<App/>)
+    await screen.findByRole('textbox',{name:'Your answer'})
+    expect(saved.drillSessions.numbers.question).toEqual(numberQuestion)
+    fireEvent.click(tab('Days'))
+    expect(screen.getByText('Write the day in English')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Open settings'}))
+    expect(screen.getByRole('button',{name:'From Korean'})).toHaveClass('selected')
+    expect(screen.getByRole('region',{name:'Global settings'})).toHaveTextContent('Answer style')
   })
 })

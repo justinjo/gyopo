@@ -1,4 +1,4 @@
-import type { DrillAdapter, DrillContext, Question, QuestionSubject, Settings } from '../types'
+import type { DirectionalDrillId, DrillAdapter, DrillContext, Question, QuestionSubject, Settings } from '../types'
 import { normalizeAnswer, normalizeTime, sample, shuffle, uniqueChoices } from '../lib/normalize'
 import { parseIntegerAnswer, toNativeKorean, toSinoKorean } from '../lib/koreanNumbers'
 import { colors } from '../content/colors'
@@ -13,7 +13,7 @@ const check: DrillAdapter['checkAnswer'] = (q, input) => {
   const accepted=q.accepted.find(a=>normalizer(a.value)===value)
   return { correct: !!accepted, canonical: q.canonical, normalizedInput: value, note: accepted?.label }
 }
-const actualDirection = (settings: Settings) => settings.direction === 'mixed' ? sample(['forward','reverse'] as const) : settings.direction
+const actualDirection = (settings: Settings, drill:DirectionalDrillId) => settings.directions[drill] === 'mixed' ? sample(['forward','reverse'] as const) : settings.directions[drill]
 
 function numberRange(s: Settings, native: boolean): [number, number] {
   if(s.numberPreset==='custom'&&(!Number.isInteger(s.customMin)||!Number.isInteger(s.customMax)))return native?[0,99]:[0,9999]
@@ -33,7 +33,7 @@ const numbers: DrillAdapter = {
   selectNext({settings,counterBag}:DrillContext) {
     const native=settings.numberSystem==='mixed'?Math.random()<.35:settings.numberSystem==='native'
     const [min,max]=numberRange(settings,native)
-    return {subject:{drill:'numbers',value:randomInteger(min,max),system:native?'native':'sino',reverse:actualDirection(settings)==='reverse'},counterBag:[...counterBag]}
+    return {subject:{drill:'numbers',value:randomInteger(min,max),system:native?'native':'sino',reverse:actualDirection(settings,'numbers')==='reverse'},counterBag:[...counterBag]}
   },
   buildQuestion(subject:QuestionSubject,settings:Settings):Question {
     if(subject.drill!=='numbers')throw new Error('Expected a number subject')
@@ -52,7 +52,7 @@ const colorAdapter: DrillAdapter = {
   id:'colors',label:'Colors',checkAnswer:check,
   selectNext({settings,recentSubjectKeys,counterBag}:DrillContext) {
     const entry=selectRandom(colors,entry=>`colors:${entry.id}`,recentSubjectKeys.filter(key=>key.startsWith('colors:')),2)
-    return {subject:{drill:'colors',entryId:entry.id,reverse:actualDirection(settings)==='reverse'},counterBag:[...counterBag]}
+    return {subject:{drill:'colors',entryId:entry.id,reverse:actualDirection(settings,'colors')==='reverse'},counterBag:[...counterBag]}
   },
   buildQuestion(subject:QuestionSubject,settings:Settings):Question {
     if(subject.drill!=='colors')throw new Error('Expected a color subject')
@@ -115,7 +115,7 @@ const timeAdapter: DrillAdapter = {
   selectNext({settings,counterBag}:DrillContext) {
     const hour=randomInteger(0,23),minute=randomInteger(0,59)
     const format=settings.timeFormat==='mixed'?sample(['12','24'] as const):settings.timeFormat
-    return {subject:{drill:'time',hour,minute,format,reverse:actualDirection(settings)==='reverse'},counterBag:[...counterBag]}
+    return {subject:{drill:'time',hour,minute,format,reverse:actualDirection(settings,'time')==='reverse'},counterBag:[...counterBag]}
   },
   buildQuestion(subject:QuestionSubject,_settings:Settings):Question {
     if(subject.drill!=='time')throw new Error('Expected a time subject')
@@ -130,7 +130,7 @@ const dayAdapter: DrillAdapter = {
   id:'days',label:'Days',checkAnswer:check,
   selectNext({settings,recentSubjectKeys,counterBag}:DrillContext) {
     const entry=selectRandom(days,entry=>`days:${entry.id}`,recentSubjectKeys.filter(key=>key.startsWith('days:')),2)
-    return {subject:{drill:'days',entryId:entry.id,reverse:actualDirection(settings)==='reverse'},counterBag:[...counterBag]}
+    return {subject:{drill:'days',entryId:entry.id,reverse:actualDirection(settings,'days')==='reverse'},counterBag:[...counterBag]}
   },
   buildQuestion(subject:QuestionSubject,_settings:Settings):Question {
     if(subject.drill!=='days')throw new Error('Expected a weekday subject')
@@ -163,7 +163,8 @@ export function updateQuestion(question:Question,settings:Settings,previous:Sett
     const [min,max]=numberRange(settings,native),n=Number(question.meta?.value)
     if(n<min||n>max)return null
   }
-  const directionChanged=settings.direction!==previous.direction
+  const direction=settings.directions[question.drill]
+  const directionChanged=direction!==previous.directions[question.drill]
   const systemChanged=question.drill==='numbers'&&settings.numberSystem!==previous.numberSystem
   const formatChanged=question.drill==='time'&&settings.timeFormat!==previous.timeFormat
   const choicesChanged=question.drill==='colors'&&settings.answerMode!==previous.answerMode
@@ -171,7 +172,7 @@ export function updateQuestion(question:Question,settings:Settings,previous:Sett
   // Recover clock values from questions saved before source metadata was added.
   if(question.drill==='time'&&question.meta?.hour===undefined){const match=/^time-(\d+)-(\d+)-/.exec(question.id);if(!match)return question;question={...question,meta:{...question.meta,hour:Number(match[1]),minute:Number(match[2])}}}
   const subject=subjectFromQuestion(question)
-  if('reverse' in subject&&settings.direction!=='mixed')subject.reverse=settings.direction==='reverse'
+  if('reverse' in subject&&direction!=='mixed')subject.reverse=direction==='reverse'
   if(subject.drill==='numbers'&&settings.numberSystem!=='mixed')subject.system=settings.numberSystem
   if(subject.drill==='time'&&settings.timeFormat!=='mixed')subject.format=settings.timeFormat
   const updated=adapters[question.drill].buildQuestion(subject,settings)
