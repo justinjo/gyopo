@@ -50,3 +50,13 @@ it('restores a 받침 deck without changing its order or position',()=>{
   session.revealed=true
   expect(migrate({alphabetSession:session}).alphabetSession).toEqual(session)
 })
+
+
+it('migrates old question-ID history to stable subject keys without losing the active question',()=>{
+  const old={session:{...initialState.session,recentSubjectKeys:undefined,recentIds:['color-red-en-123','color-blue-ko-124'],question:{id:'color-red-en-123',drill:'colors',progressKey:'red',canonical:'red'}}}
+  const restored=migrate(old)
+  expect(restored.session.recentSubjectKeys).toEqual(['colors:red','colors:blue'])
+  expect(restored.session.question?.subjectKey).toBe('colors:red')
+  expect(restored.session.question?.canonical).toBe('red')
+  expect(restored.session).not.toHaveProperty('recentIds')
+})

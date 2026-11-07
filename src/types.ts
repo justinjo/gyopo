@@ -14,6 +14,7 @@ export type QuestionSubject =
 export interface SubjectSelection { subject:QuestionSubject; counterBag:string[] }
 export interface Question {
   id: string
+  subjectKey: string
   subject?: QuestionSubject
   drill: DrillId
   prompt: string
@@ -26,7 +27,7 @@ export interface Question {
   meta?: Record<string, string | number | boolean>
 }
 export interface AnswerResult { correct: boolean; canonical: string; normalizedInput: string; note?: string }
-export interface DrillContext { settings: Settings; recentIds: readonly string[]; counterBag: readonly string[] }
+export interface DrillContext { settings: Settings; recentSubjectKeys: readonly string[]; counterBag: readonly string[] }
 export interface DrillAdapter {
   id: DrillId
   label: string
@@ -58,7 +59,7 @@ export interface ActiveSession {
   input: string
   feedback: AnswerResult | null
   translationVisible: boolean
-  recentIds: string[]
+  recentSubjectKeys: string[]
   counterBag: string[]
 }
 export interface PersistedState {

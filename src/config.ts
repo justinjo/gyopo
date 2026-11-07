@@ -9,5 +9,5 @@ export const initialState: PersistedState = {
   alphabetSession: createAlphabetSession(),
   settings: { answerMode: 'choice', direction: 'mixed', numberSystem: 'mixed', numberPreset: 'medium', customMin: 0, customMax: 9999, counterLevel: 'all', timeFormat: 'mixed' },
   progress: { lifetime: { correct: 0, incorrect: 0 }, byDrill: { numbers: { correct: 0, incorrect: 0 }, counters: { correct: 0, incorrect: 0 }, colors: { correct: 0, incorrect: 0 }, time: { correct: 0, incorrect: 0 }, days: { correct: 0, incorrect: 0 } }, daily: [], counterMistakes: {} },
-  session: { drill: 'numbers', question: null, input: '', feedback: null, translationVisible: false, recentIds: [], counterBag: [] }
+  session: { drill: 'numbers', question: null, input: '', feedback: null, translationVisible: false, recentSubjectKeys: [], counterBag: [] }
 }

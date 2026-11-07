@@ -1,4 +1,5 @@
 import { restoreAlphabetSession } from '../content/alphabetSession'
+import { restoreRecentSubjectKeys, subjectKey } from '../drills/selection'
 import { DRILLS, initialState } from '../config'
 import type { PersistedState } from '../types'
 
@@ -9,13 +10,17 @@ export function migrate(raw: unknown): PersistedState {
   if(!raw||typeof raw!=='object')return cloneInitial()
   const old=raw as Partial<PersistedState>&{version?:number}
   const fresh=cloneInitial()
+  const legacySession=old.session as (Partial<PersistedState['session']>&{recentIds?:unknown})|undefined
+  const {recentIds:legacyIds,...savedSession}=legacySession??{}
+  const question=savedSession.question
+  const restoredQuestion=question?{...question,subjectKey:question.subjectKey??(question.subject?subjectKey(question.subject):restoreRecentSubjectKeys([question.id])[0]??'')}:question
   return {
     ...fresh,...old,version:2,
     view:[...DRILLS,'flashcards','alphabet'].includes(old.view??'')?old.view!:old.session?.drill??fresh.view,
     alphabetSession:restoreAlphabetSession(old.alphabetSession),
     settings:{...fresh.settings,...old.settings},
     progress:{...fresh.progress,...old.progress,lifetime:{...fresh.progress.lifetime,...old.progress?.lifetime},byDrill:{...fresh.progress.byDrill,...old.progress?.byDrill},daily:old.progress?.daily??[],counterMistakes:old.progress?.counterMistakes??{}},
-    session:{...fresh.session,...old.session}
+    session:{...fresh.session,...savedSession,question:restoredQuestion??null,recentSubjectKeys:restoreRecentSubjectKeys(savedSession.recentSubjectKeys??legacyIds)}
   }
 }
 function openDb():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const request=indexedDB.open(DB,DB_VERSION);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE)};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}

@@ -5,7 +5,7 @@ const createQuestion=(adapter:DrillAdapter,context:DrillContext)=>adapter.buildQ
 import { adapters, updateQuestion } from './index'
 import type { DrillId, Settings } from '../types'
 const settings:Settings={...initialState.settings,direction:'forward',numberSystem:'sino',numberPreset:'custom',customMin:42,customMax:42}
-const create=(drill:DrillId,s=settings)=>createQuestion(adapters[drill],{settings:s,recentIds:[],counterBag:[]})
+const create=(drill:DrillId,s=settings)=>createQuestion(adapters[drill],{settings:s,recentSubjectKeys:[],counterBag:[]})
 describe('updating a current question',()=>{
   it.each(['numbers','counters','colors','time','days'] as const)('keeps the same %s problem when switching answer style',drill=>{
     const typing={...settings,answerMode:'typing' as const},q=create(drill,typing)
@@ -62,4 +62,8 @@ describe('number range presets',()=>{
     expect(updateQuestion(q,{...settings,numberPreset:'large'},previous)).toBeNull()
     expect(updateQuestion(q,{...settings,numberPreset:'extra-large'},previous)).toBe(q)
   })
+})
+
+it('uses a valid fallback while custom bounds contain non-integers',()=>{
+  expect(()=>create('numbers',{...settings,customMin:0.5,customMax:9.5})).not.toThrow()
 })
