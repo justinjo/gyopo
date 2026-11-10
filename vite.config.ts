@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
         { src: `${base}maskable-icon-512x512.png`, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
       ]
     },
-    injectManifest: { globPatterns: ['**/*.{js,css,html,png,svg,webmanifest}'] },
+    injectManifest: { globIgnores: ['benzi/**'], globPatterns: ['**/*.{js,css,html,png,svg,webmanifest}'] },
     devOptions: { enabled: true, type: 'module' }
   })],
   test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'] }

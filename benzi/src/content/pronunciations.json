@@ -1,0 +1,702 @@
+{
+  "公寓": {
+    "file": "audio/001.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "客厅": {
+    "file": "audio/002.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "卧室": {
+    "file": "audio/003.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "厨房": {
+    "file": "audio/004.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "浴室": {
+    "file": "audio/005.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "家人": {
+    "file": "audio/006.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "父母": {
+    "file": "audio/007.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "弟弟": {
+    "file": "audio/008.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "邻居": {
+    "file": "audio/009.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "大": {
+    "file": "audio/010.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "小": {
+    "file": "audio/011.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "明亮": {
+    "file": "audio/012.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "宽敞": {
+    "file": "audio/013.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "狭窄": {
+    "file": "audio/014.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "干净": {
+    "file": "audio/015.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "整洁": {
+    "file": "audio/016.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "安静": {
+    "file": "audio/017.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "方便": {
+    "file": "audio/018.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "舒服": {
+    "file": "audio/019.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "结实": {
+    "file": "audio/020.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "友好": {
+    "file": "audio/021.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "活泼": {
+    "file": "audio/022.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "内向": {
+    "file": "audio/023.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "善良": {
+    "file": "audio/024.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "相处融洽": {
+    "file": "audio/025.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "动物": {
+    "file": "audio/026.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "宠物": {
+    "file": "audio/027.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "只": {
+    "file": "audio/028.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "小狗": {
+    "file": "audio/029.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "猫": {
+    "file": "audio/030.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "兔子": {
+    "file": "audio/031.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "狮子": {
+    "file": "audio/032.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "老虎": {
+    "file": "audio/033.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "猴子": {
+    "file": "audio/034.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "大象": {
+    "file": "audio/035.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "长颈鹿": {
+    "file": "audio/036.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "熊": {
+    "file": "audio/037.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "狐狸": {
+    "file": "audio/038.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "动物园": {
+    "file": "audio/039.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "养": {
+    "file": "audio/040.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "可爱": {
+    "file": "audio/041.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "可怕": {
+    "file": "audio/042.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "强壮": {
+    "file": "audio/043.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "慢": {
+    "file": "audio/044.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "快": {
+    "file": "audio/045.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "好吃": {
+    "file": "audio/046.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "难吃": {
+    "file": "audio/047.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "还行": {
+    "file": "audio/048.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "不好": {
+    "file": "audio/049.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "外向": {
+    "file": "audio/050.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "公司": {
+    "file": "audio/051.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "学校": {
+    "file": "audio/052.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "地铁": {
+    "file": "audio/053.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "公共汽车": {
+    "file": "audio/054.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "自行车": {
+    "file": "audio/055.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "出租车": {
+    "file": "audio/056.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "火车": {
+    "file": "audio/057.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "飞机": {
+    "file": "audio/058.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "汽车": {
+    "file": "audio/059.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "步行": {
+    "file": "audio/060.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "花时间": {
+    "file": "audio/061.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "分钟": {
+    "file": "audio/062.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "小时": {
+    "file": "audio/063.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "多久": {
+    "file": "audio/064.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "大约": {
+    "file": "audio/065.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "上班": {
+    "file": "audio/066.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "下班": {
+    "file": "audio/067.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "乘坐": {
+    "file": "audio/068.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "图书馆": {
+    "file": "audio/069.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "公园": {
+    "file": "audio/070.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "机场": {
+    "file": "audio/071.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "百货商店": {
+    "file": "audio/072.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "海边": {
+    "file": "audio/073.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "吵闹": {
+    "file": "audio/074.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "累": {
+    "file": "audio/075.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "坐": {
+    "file": "audio/076.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "等": {
+    "file": "audio/077.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "起床": {
+    "file": "audio/078.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "睡觉": {
+    "file": "audio/079.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "洗": {
+    "file": "audio/080.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "打扫": {
+    "file": "audio/081.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "做饭": {
+    "file": "audio/082.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "休息": {
+    "file": "audio/083.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "运动": {
+    "file": "audio/084.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "听": {
+    "file": "audio/085.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "读": {
+    "file": "audio/086.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "写": {
+    "file": "audio/087.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "说": {
+    "file": "audio/088.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "下车": {
+    "file": "audio/089.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "拍照": {
+    "file": "audio/090.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "卖": {
+    "file": "audio/091.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "制作": {
+    "file": "audio/092.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "背诵": {
+    "file": "audio/093.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "作业": {
+    "file": "audio/094.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "考试": {
+    "file": "audio/095.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "提问": {
+    "file": "audio/096.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "录音": {
+    "file": "audio/097.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "脱": {
+    "file": "audio/098.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "药": {
+    "file": "audio/099.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  },
+  "感冒": {
+    "file": "audio/100.m4a",
+    "source": "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "speaker": "Kokoro · Mandarin voice zf_001"
+  }
+}
