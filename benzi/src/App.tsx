@@ -7,8 +7,8 @@ import { Pronunciation } from './Pronunciation'
 import { repository } from './storage/repository'
 import type { ActiveSession, DrillId, PersistedState, SectionId, Settings } from './types'
 
-const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time',days:'Days'}
-const icons:Record<DrillId,string>={numbers:'一',counters:'个',colors:'●',time:'点',days:'日'}
+const labels:Record<DrillId,string>={numbers:'Numbers',counters:'Counters',colors:'Colors',time:'Time'}
+const icons:Record<DrillId,string>={numbers:'一',counters:'个',colors:'●',time:'点'}
 const today=()=>new Date().toLocaleDateString('en-CA')
 
 export function App(){

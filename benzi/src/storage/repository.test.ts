@@ -7,13 +7,13 @@ describe('persistence',()=>{
 })
 
 describe('selected section persistence',()=>{
-  it.each(['numbers','counters','colors','time','days','flashcards'] as const)('restores %s after reloading',async view=>{
+  it.each(['numbers','counters','colors','time','flashcards'] as const)('restores %s after reloading',async view=>{
     const state={...structuredClone(initialState),view}
     await repository.save(state)
     expect((await repository.load()).view).toBe(view)
   })
   it('uses the active drill for saved data from before section persistence',()=>{
-    expect(migrate({session:{drill:'days'}}).view).toBe('days')
+    expect(migrate({session:{drill:'time'}}).view).toBe('time')
   })
   it('falls back to the active drill for an invalid saved section',()=>{
     expect(migrate({view:'missing',session:{drill:'colors'}}).view).toBe('colors')
@@ -23,5 +23,12 @@ describe('selected section persistence',()=>{
 it('moves the retired Pinyin section to vocabulary while preserving progress',()=>{
  const state=migrate({view:'alphabet',progress:{lifetime:{correct:12,incorrect:3}}})
  expect(state.view).toBe('flashcards')
+ expect(state.progress.lifetime).toEqual({correct:12,incorrect:3})
+})
+
+it.each(['days','flashcards'])('retires a saved Days session in the %s section',view=>{
+ const state=migrate({view,session:{drill:'days',question:{drill:'days'},input:'星期一'},progress:{lifetime:{correct:12,incorrect:3}}})
+ expect(state.view).toBe(view==='flashcards'?'flashcards':'numbers')
+ expect(state.session).toEqual(initialState.session)
  expect(state.progress.lifetime).toEqual({correct:12,incorrect:3})
 })

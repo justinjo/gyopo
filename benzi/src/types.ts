@@ -1,4 +1,4 @@
-export type DrillId = 'numbers' | 'counters' | 'colors' | 'time' | 'days'
+export type DrillId = 'numbers' | 'counters' | 'colors' | 'time'
 export type SectionId = DrillId | 'flashcards'
 export type AnswerMode = 'typing' | 'choice'
 export type Direction = 'forward' | 'reverse' | 'mixed'
@@ -7,7 +7,7 @@ export type LevelFilter = 'all' | 'beginner' | 'intermediate'
 export interface AcceptedAnswer { value: string; label?: string }
 export type QuestionSubject =
   | {drill:'numbers'; value:number; system:'financial'|'standard'; reverse:boolean}
-  | {drill:'colors'|'days'; entryId:string; reverse:boolean}
+  | {drill:'colors'; entryId:string; reverse:boolean}
   | {drill:'counters'; entryId:string; exampleIndex:number}
   | {drill:'time'; hour:number; minute:number; format:'12'|'24'; reverse:boolean}
 export interface SubjectSelection { subject:QuestionSubject; counterBag:string[] }

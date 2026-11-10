@@ -25,13 +25,13 @@ describe('unambiguous counter choices',()=>{
       expect(q.choices!.filter(choice=>choice!==q.canonical).every(choice=>safe.has(choice))).toBe(true)
     }
   })
-  it.each(['years','months','days','hours','minutes'])('excludes alternative durations for %s',id=>{
+  it.each(['years','months','hours','minutes'])('excludes alternative durations for %s',id=>{
     expect(counterDistractors(id).every(c=>!['年','天','分钟'].includes(c.counter))).toBe(true)
   })
 })
 
-describe('recent weekday and color questions',()=>{
-  it.each(['days','colors'] as const)('leaves two intervening questions before repeating a %s item',drill=>{
+describe('recent color questions',()=>{
+  it.each(['colors'] as const)('leaves two intervening questions before repeating a %s item',drill=>{
     const random=vi.spyOn(Math,'random').mockReturnValue(0)
     try {
       let recentIds:string[]=[]
@@ -63,7 +63,7 @@ describe('selection and rendering',()=>{
     expect(question.progressKey).toBe('people')
     expect(selected.counterBag).toEqual(['animals'])
   })
-  it.each(['numbers','counters','colors','time','days'] as const)('rebuilds the selected %s subject without selecting again',drill=>{
+  it.each(['numbers','counters','colors','time'] as const)('rebuilds the selected %s subject without selecting again',drill=>{
     const context={settings:initialState.settings,recentIds:[],counterBag:[]}
     const selected=adapters[drill].selectNext(context)
     const first=adapters[drill].buildQuestion(selected.subject,context.settings)

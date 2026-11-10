@@ -3,7 +3,6 @@ import { normalizeAnswer, normalizeTime, sample, shuffle, uniqueChoices } from '
 import { parseIntegerAnswer, toFinancialChinese, toChinese } from '../lib/chineseNumbers'
 import { colors } from '../content/colors'
 import { counters } from '../content/counters'
-import { days } from '../content/days'
 import { digitalTime, digitalTimeAliases, chineseTime, timeAliases } from '../lib/time'
 
 const check: DrillAdapter['checkAnswer'] = (q, input) => {
@@ -124,23 +123,9 @@ const timeAdapter: DrillAdapter = {
     return {subject,id:`time-${hour}-${minute}-${format}-${directionLabel(reverse)}-${Date.now()}`,drill:'time',prompt:reverse?words:digital,promptLabel:reverse?'Write the digital time':`${format}-hour Mandarin reading`,canonical,accepted,choices:uniqueChoices(canonical,alterfinancials),progressKey:format,meta:{digital:reverse,format,hour,minute,reverse}}
   }
 }
-const dayAdapter: DrillAdapter = {
-  id:'days',label:'Days',checkAnswer:check,
-  selectNext({settings,recentIds,counterBag}:DrillContext) {
-    const entry=sampleOutsideRecent(days,recentIds,'day')
-    return {subject:{drill:'days',entryId:entry.id,reverse:actualDirection(settings)==='reverse'},counterBag:[...counterBag]}
-  },
-  buildQuestion(subject:QuestionSubject,_settings:Settings):Question {
-    if(subject.drill!=='days')throw new Error('Expected a weekday subject')
-    const entry=days.find(day=>day.id===subject.entryId)!,reverse=subject.reverse
-    const canonical=reverse?entry.english:entry.chinese
-    const candidates=days.filter(day=>day.id!==entry.id).map(day=>reverse?day.english:day.chinese)
-    return {subject,id:`day-${entry.id}-${reverse?'en':'zh'}-${Date.now()}`,drill:'days',prompt:reverse?entry.chinese:entry.english,promptLabel:reverse?'Write the day in English':'Write the day in Mandarin',canonical,accepted:[{value:canonical}],choices:uniqueChoices(canonical,candidates),progressKey:entry.id,meta:{reverse}}
-  }
-}
 function directionLabel(reverse:boolean){return reverse?'digital':'chinese'}
 
-export const adapters:Record<string,DrillAdapter>={numbers,counters:counterAdapter,colors:colorAdapter,time:timeAdapter,days:dayAdapter}
+export const adapters:Record<string,DrillAdapter>={numbers,counters:counterAdapter,colors:colorAdapter,time:timeAdapter}
 export function validateCustomRange(min:number,max:number,system:Settings['numberSystem']):string|null {
   if(!Number.isInteger(min)||!Number.isInteger(max))return 'Use whole numbers.'
   if(min>max)return 'Minimum must be no greater than maximum.'
@@ -178,10 +163,10 @@ export function updateQuestion(question:Question,settings:Settings,previous:Sett
 // Older saved questions predate explicit subjects. Reconstruct them without selecting anew.
 export function subjectFromQuestion(question:Question):QuestionSubject {
   if(question.subject)return {...question.subject}
-  const reverse=!!(question.meta?.reverse??(question.drill==='time'?question.meta?.digital:question.drill==='colors'?!question.meta?.swatch:question.promptLabel==='Write the number'||question.promptLabel==='Write the day in English'))
+  const reverse=!!(question.meta?.reverse??(question.drill==='time'?question.meta?.digital:question.drill==='colors'?!question.meta?.swatch:question.promptLabel==='Write the number'))
   switch(question.drill){
     case 'numbers':return {drill:'numbers',value:Number(question.meta?.value),system:question.meta?.system==='financial'?'financial':'standard',reverse}
-    case 'colors':case 'days':return {drill:question.drill,entryId:question.progressKey,reverse}
+    case 'colors':return {drill:question.drill,entryId:question.progressKey,reverse}
     case 'time':return {drill:'time',hour:Number(question.meta?.hour),minute:Number(question.meta?.minute),format:question.meta?.format==='12'?'12':'24',reverse}
     case 'counters':{
       const entry=counters.find(c=>c.id===question.progressKey)!
