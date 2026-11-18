@@ -29,5 +29,19 @@ export const flashcardLessons:FlashcardLesson[]=[
     {korean:'읽다',english:'to read'},{korean:'쓰다',english:'to write'},{korean:'말하다',english:'to speak'},{korean:'내리다',english:'to get off'},{korean:'찍다',english:'to take (a photo)'},
     {korean:'팔다',english:'to sell'},{korean:'만들다',english:'to make'},{korean:'외우다',english:'to memorize'},{korean:'숙제',english:'homework'},{korean:'시험',english:'exam, test'},
     {korean:'질문하다',english:'to ask a question'},{korean:'녹음하다',english:'to record'},{korean:'벗다',english:'to take off'},{korean:'약',english:'medicine'},{korean:'감기에 걸리다',english:'to catch a cold'}
+  ]},
+  {id:'casual-speech',number:5,title:'Casual speech',koreanTitle:'반말',cards:[
+    {korean:'반말',english:'casual speech'},{korean:'살다',english:'to live'},{korean:'아늑하다',english:'to be cozy'},{korean:'근처',english:'nearby'},{korean:'산책하다',english:'to take a walk'},
+    {korean:'체육관',english:'gym'},{korean:'분위기',english:'atmosphere, vibe'},{korean:'얌전하다',english:'to be calm, well-behaved'},{korean:'단어',english:'word, vocabulary'},{korean:'혼자',english:'alone'},
+    {korean:'같이',english:'together'},{korean:'매일',english:'every day'},{korean:'아침',english:'morning'},{korean:'저녁',english:'evening, dinner'},{korean:'주말',english:'weekend'},
+    {korean:'바쁘다',english:'to be busy'},{korean:'재미있다',english:'to be fun'},{korean:'보통',english:'usually'},{korean:'진짜',english:'really'},{korean:'친하다',english:'to be close (friends)'},
+    {korean:'마시다',english:'to drink'},{korean:'좋아하다',english:'to like'},{korean:'오늘',english:'today'},{korean:'내일',english:'tomorrow'},{korean:'뭐',english:'what'}
+  ]},
+  {id:'formal-speech-news',number:6,title:'Formal speech and news',koreanTitle:'존댓말과 뉴스',cards:[
+    {korean:'존댓말',english:'polite/honorific speech'},{korean:'뉴스',english:'news'},{korean:'앵커',english:'news anchor'},{korean:'인터뷰',english:'interview'},{korean:'겨울',english:'winter'},
+    {korean:'춥다',english:'to be cold'},{korean:'입다',english:'to wear (clothes)'},{korean:'모자를 쓰다',english:'to wear a hat'},{korean:'유명하다',english:'to be famous'},{korean:'가르치다',english:'to teach'},
+    {korean:'열심히',english:'hard, diligently'},{korean:'매주',english:'every week'},{korean:'직업',english:'job, occupation'},{korean:'만족하다',english:'to be satisfied'},{korean:'행복하다',english:'to be happy'},
+    {korean:'기분',english:'mood, feeling'},{korean:'감사하다',english:'to thank'},{korean:'죄송하다',english:'to be sorry'},{korean:'맞다',english:'to be correct'},{korean:'아니다',english:'to not be'},
+    {korean:'잘 먹겠습니다',english:'(said before a meal)'},{korean:'잘 먹었습니다',english:'(said after a meal)'},{korean:'일기',english:'diary'},{korean:'편지',english:'letter'},{korean:'시장',english:'market'}
   ]}
 ]
