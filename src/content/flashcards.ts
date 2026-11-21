@@ -43,5 +43,12 @@ export const flashcardLessons:FlashcardLesson[]=[
     {korean:'열심히',english:'hard, diligently'},{korean:'매주',english:'every week'},{korean:'직업',english:'job, occupation'},{korean:'만족하다',english:'to be satisfied'},{korean:'행복하다',english:'to be happy'},
     {korean:'기분',english:'mood, feeling'},{korean:'감사하다',english:'to thank'},{korean:'죄송하다',english:'to be sorry'},{korean:'맞다',english:'to be correct'},{korean:'아니다',english:'to not be'},
     {korean:'잘 먹겠습니다',english:'(said before a meal)'},{korean:'잘 먹었습니다',english:'(said after a meal)'},{korean:'일기',english:'diary'},{korean:'편지',english:'letter'},{korean:'시장',english:'market'}
+  ]},
+  {id:'location-connectors-appearance',number:7,title:'Location, connectors, and appearance',koreanTitle:'위치, 접속사, 외모',cards:[
+    {korean:'앞',english:'front'},{korean:'뒤',english:'behind'},{korean:'옆',english:'next to'},{korean:'오른쪽',english:'right side'},{korean:'왼쪽',english:'left side'},
+    {korean:'사이',english:'between'},{korean:'위',english:'on, above'},{korean:'아래',english:'under, below'},{korean:'하고',english:'and, with'},{korean:'랑/이랑',english:'and, with (casual)'},
+    {korean:'와/과',english:'and, with (written)'},{korean:'그리고',english:'and (between sentences)'},{korean:'그런데 (근데)',english:'but, by the way'},{korean:'하지만',english:'but, however'},{korean:'그러면 (그럼)',english:'then, in that case'},
+    {korean:'그때',english:'at that time, then'},{korean:'키',english:'height'},{korean:'얼굴',english:'face'},{korean:'눈',english:'eye'},{korean:'뚱뚱하다',english:'to be fat, chubby'},
+    {korean:'날씬하다',english:'to be slim'},{korean:'몸이 좋다',english:'to be fit, muscular'},{korean:'머리',english:'hair, head'},{korean:'길다',english:'to be long'},{korean:'짧다',english:'to be short (length)'}
   ]}
 ]
